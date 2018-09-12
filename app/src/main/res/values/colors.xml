@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#1de9b6</color>
+    <color name="colorPrimaryDark">#00b686</color>
+    <color name="colorAccent">#5df2d6</color>
+    <color name="searchWhite">#FFFFFF</color>
+    <color name="colorCircleFill">#4b1de9b6</color>
+    <color name="black">#000000</color>
+</resources>

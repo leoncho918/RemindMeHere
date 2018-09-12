@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">RemindMeHere</string>
+    <string name="title_activity_reminders_maps">Map</string>
+    <string name="dialog_title">Location Permission Required</string>
+    <string name="dialog_message">Location Permission is required to locate where you are.</string>
+    <string name="dialog_allow">Allow</string>
+    <string name="dialog_deny">Deny</string>
+    <string name="location_unavailable">Unable to get current location</string>
+    <string name="menu_reminders">Reminders</string>
+    <string name="menu_import">Import Reminders</string>
+    <string name="menu_export">Export Reminders</string>
+    <string name="menu">Menu</string>
+    <string name="search_title">Search here</string>
+    <string name="title_activity_add_reminder">New Reminder</string>
+    <string name="menu_edit_location">Edit Location</string>
+    <string name="reminder_name">Name</string>
+    <string name="reminder_description">Description</string>
+</resources>
