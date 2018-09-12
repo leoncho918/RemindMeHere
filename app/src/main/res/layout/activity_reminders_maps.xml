@@ -30,7 +30,7 @@
                         tools:context=".activity.RemindersMapsActivity"/>
 
                     <android.support.design.widget.FloatingActionButton
-                        android:id="@+id/myLocation_btn"
+                        android:id="@+id/myLocation_fab"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/fab_margin"
@@ -42,7 +42,7 @@
                         app:rippleColor="@color/colorPrimaryDark" />
 
                     <android.support.design.widget.FloatingActionButton
-                        android:id="@+id/addReminder_btn"
+                        android:id="@+id/addReminder_fab"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="@dimen/fab_margin"

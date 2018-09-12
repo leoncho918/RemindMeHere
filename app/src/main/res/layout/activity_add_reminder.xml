@@ -72,7 +72,7 @@
             android:layout_weight="0"/>
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/addReminder_btn"
+            android:id="@+id/addReminder_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
@@ -80,6 +80,7 @@
             android:src="@drawable/ic_add"
             app:backgroundTint="@color/colorPrimary"
             app:rippleColor="@color/colorPrimaryDark"
+            android:onClick="addReminder"
             android:layout_weight="0"/>
     </LinearLayout>
 
