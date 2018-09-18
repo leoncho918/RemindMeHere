@@ -16,4 +16,6 @@
     <string name="reminder_name">Name</string>
     <string name="reminder_description">Description</string>
     <string name="toast_name_not_set">Please set a name for your reminder.</string>
+    <string name="radius_textview">Radius:\u0020</string>
+    <string name="radius_initialTv">Radius: 1</string>
 </resources>

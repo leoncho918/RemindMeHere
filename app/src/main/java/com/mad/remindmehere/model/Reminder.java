@@ -17,6 +17,9 @@ public class Reminder {
         this.mRadius = mRadius;
     }
 
+    public Reminder() {
+    }
+
     public int getId() {
         return mId;
     }

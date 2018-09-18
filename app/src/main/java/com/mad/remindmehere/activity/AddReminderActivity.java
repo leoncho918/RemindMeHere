@@ -3,39 +3,70 @@ package com.mad.remindmehere.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Gravity;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.mad.remindmehere.R;
+import com.mad.remindmehere.model.Reminder;
+
+import java.io.IOException;
+import java.util.List;
 
 public class AddReminderActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private LatLng mMarkerLatLng = null;
     private LatLng mLatLng;
-    private TextView mAddressTf;
+    private TextView mAddressTv;
     private EditText mNameEt;
     private EditText mDescEt;
+    private TextView mRadiusTv;
+    private AppCompatSeekBar mSeekBar;
     private FloatingActionButton mAddFab;
+    private boolean mLocationPermissionGranted;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    private Location mLastKnownLocation;
+    private int mRadius;
     private boolean mNameSet;
+    public static final String NAME = "com.mad.RemindMeHere.NAME";
+    public static final String DESCRIPTION = "com.mad.RemindMeHere.DESCRIPTION";
+    public static final String LAT = "com.mad.RemindMeHere.LAT";
+    public static final String LNG = "com.mad.RemindMeHere.LNG";
+    public static final String RADIUS = "com.mad.RemindMeHere.RADIUS";
+    public static final int ADD_REMINDER_ZOOM = 17;
+    public static final int ENTER_KEY = 66;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,10 +86,16 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         double longitude = intent.getExtras().getDouble(RemindersMapsActivity.LONGITUTE);
         mLatLng = new LatLng(latitude, longitude);
 
-        mAddressTf = (TextView) findViewById(R.id.location_Tv);
+        mAddressTv = (TextView) findViewById(R.id.location_Tv);
         mNameEt = (EditText) findViewById(R.id.name_Et);
         mDescEt = (EditText) findViewById(R.id.desc_Et);
+        mRadiusTv = (TextView) findViewById(R.id.radius_Tv);
+        mSeekBar = (AppCompatSeekBar) findViewById(R.id.radius_Sb);
         mAddFab = (FloatingActionButton) findViewById(R.id.addReminder_fab);
+
+        mAddressTv.setText(getAddress(mLatLng));
+        mRadiusTv.setText(getString(R.string.radius_initialTv));
+        mRadius = 1;
 
         mNameEt.addTextChangedListener(new TextWatcher() {
             @Override
@@ -81,11 +118,63 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
 
             }
         });
+
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mRadiusTv.setText(getString(R.string.radius_textview) + progress);
+                mRadius = progress;
+                updateCircle();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
+    private void updateCircle() {
+        mMap.clear();
+        MarkerOptions markerOptions = new MarkerOptions().position(mLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_reminder_marker));
+        mMap.addMarker(markerOptions);
+        CircleOptions circleOptions = new CircleOptions().center(mLatLng).radius(mRadius*10).strokeColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null)).fillColor(ResourcesCompat.getColor(getResources(), R.color.colorCircleFill, null));
+        mMap.addCircle(circleOptions);
+    }
+
+    private String getAddress(LatLng latLng) {
+        Geocoder geocoder = new Geocoder(this);
+        String lastAddress = "Couldn't get Address";
+        try {
+            List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+            if (addresses.size() > 0) {
+                Address address = addresses.get(0);
+                lastAddress = address.getAddressLine(0);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return lastAddress;
     }
 
     public void addReminder(View view) {
         if (mNameSet) {
+            double lat = mLatLng.latitude;
+            double lng = mLatLng.longitude;
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra(NAME, mNameEt.getText().toString());
+            resultIntent.putExtra(DESCRIPTION, mDescEt.getText().toString());
+            resultIntent.putExtra(LAT, lat);
+            resultIntent.putExtra(LNG, lng);
+            resultIntent.putExtra(RADIUS, mRadius);
 
+            setResult(RemindersMapsActivity.ADD_REMINDER, resultIntent);
+            finish();
         }
         else {
             Toast toast = Toast.makeText(this, R.string.toast_name_not_set, Toast.LENGTH_SHORT);
@@ -96,18 +185,92 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.getUiSettings().setScrollGesturesEnabled(false);
-        mMap.getUiSettings().setZoomGesturesEnabled(false);
-        mMap.getUiSettings().setZoomControlsEnabled(false);
-        mMap.getUiSettings().setMyLocationButtonEnabled(false);
-        mMap.getUiSettings().setMapToolbarEnabled(false);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
+            getLocationPermission();
         }
-        mMap.setMyLocationEnabled(true);
-        MarkerOptions markerOptions = new MarkerOptions().position(mLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_reminder_marker));
-        mMap.addMarker(markerOptions);
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(mLatLng, RemindersMapsActivity.MAP_ZOOM);
-        mMap.moveCamera(cameraUpdate);
+        else {
+            mLocationPermissionGranted = true;
+        }
+        if (mLocationPermissionGranted) {
+            getDeviceLocation();
+            updateUi();
+        }
+    }
+
+    private void getLocationPermission() {
+        //Request location permission, so that app has the location of the device. The result of the permission request is handled by onRequestPermissionsResult.
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mLocationPermissionGranted = true;
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    RemindersMapsActivity.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+    }
+
+    //Called when user allows of denies a permission
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //If permission denied create dialog to tell user why permission is needed
+        if (!(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+        }
+        //else enable location ui
+        else {
+            mLocationPermissionGranted = true;
+            getDeviceLocation();
+            updateUi();
+        }
+    }
+
+    private void updateUi() {
+        try {
+            if (mLocationPermissionGranted) {
+                mMap.setMyLocationEnabled(true);
+                MarkerOptions markerOptions = new MarkerOptions().position(mLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_reminder_marker));
+                mMap.addMarker(markerOptions);
+                CircleOptions circleOptions = new CircleOptions().center(mLatLng).radius(mRadius*10).strokeColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null)).fillColor(ResourcesCompat.getColor(getResources(), R.color.colorCircleFill, null));
+                mMap.addCircle(circleOptions);
+                mMap.getUiSettings().setScrollGesturesEnabled(false);
+                mMap.getUiSettings().setZoomGesturesEnabled(false);
+                mMap.getUiSettings().setZoomControlsEnabled(false);
+                mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                mMap.getUiSettings().setMapToolbarEnabled(false);
+            }
+        }
+        catch (SecurityException e) {
+            Log.e("Exception: %s", e.getMessage());
+        }
+    }
+
+    private void getDeviceLocation() {
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        try {
+            if (mLocationPermissionGranted) {
+                Task location = mFusedLocationProviderClient.getLastLocation();
+                location.addOnCompleteListener(new OnCompleteListener() {
+                    @Override
+                    public void onComplete(@NonNull Task task) {
+                        if (task.isSuccessful()) {
+                            mLastKnownLocation = (Location) task.getResult();
+                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), ADD_REMINDER_ZOOM);
+                            mMap.moveCamera(cameraUpdate);
+                        }
+                        else {
+                            Toast.makeText(AddReminderActivity.this, R.string.location_unavailable, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        }
+        catch (SecurityException e) {
+            Log.e(RemindersMapsActivity.TAG, "getDeviceLocation: SecurityException: " + e.getMessage());
+        }
+    }
+
+    public void changeLocation(View view) {
+
     }
 }

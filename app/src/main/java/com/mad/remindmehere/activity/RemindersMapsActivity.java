@@ -55,7 +55,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     public static final int MAP_ZOOM = 16;
     public static final String LATITUDE = "LAT";
     public static final String LONGITUTE = "LONG";
-    public static final int ADD_REMINDER = 2;
+    public static final int ADD_REMINDER = 1;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation = null;
     private FusedLocationProviderClient mFusedLocationProviderClient;
@@ -108,7 +108,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     }
 
     private void populateReminders() {
-        mReminders.add(new Reminder("Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 5));
+        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 5));
     }
 
     private void populateRemindersOnMap() {
@@ -297,5 +297,22 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         intent.putExtra(LATITUDE, mLastKnownLocation.getLatitude());
         intent.putExtra(LONGITUTE, mLastKnownLocation.getLongitude());
         startActivityForResult(intent, ADD_REMINDER);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Reminder newReminder = new Reminder();
+        if (requestCode == 1) {
+            if (resultCode == ADD_REMINDER) {
+                newReminder.setId(mReminders.size());
+                newReminder.setName(data.getStringExtra(AddReminderActivity.NAME));
+                newReminder.setDescription(data.getStringExtra(AddReminderActivity.DESCRIPTION));
+                newReminder.setLatLng(new LatLng(data.getDoubleExtra(AddReminderActivity.LAT, 37.422), data.getDoubleExtra(AddReminderActivity.LNG, -122.084)));
+                newReminder.setRadius(data.getIntExtra(AddReminderActivity.RADIUS, 1));
+                mReminders.add(newReminder);
+                mMap.clear();
+                populateRemindersOnMap();
+            }
+        }
     }
 }
