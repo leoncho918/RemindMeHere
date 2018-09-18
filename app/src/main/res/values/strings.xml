@@ -18,4 +18,7 @@
     <string name="toast_name_not_set">Please set a name for your reminder.</string>
     <string name="radius_textview">Radius:\u0020</string>
     <string name="radius_initialTv">Radius: 1</string>
+    <string name="title_activity_select_location_maps">Location Selection</string>
+    <string name="edit_btn">Edit</string>
+    <string name="dismiss_btn">Dismiss</string>
 </resources>

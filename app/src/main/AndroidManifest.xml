@@ -50,6 +50,13 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mad.remindmehere.activity.RemindersMapsActivity" />
         </activity>
+        <activity
+            android:name=".activity.SelectLocationMapsActivity"
+            android:label="@string/title_activity_select_location_maps">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mad.remindmehere.activity.AddReminderActivity" />
+        </activity>
     </application>
 
 </manifest>

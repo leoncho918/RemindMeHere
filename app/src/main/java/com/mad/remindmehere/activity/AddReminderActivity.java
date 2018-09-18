@@ -66,7 +66,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
     public static final String LNG = "com.mad.RemindMeHere.LNG";
     public static final String RADIUS = "com.mad.RemindMeHere.RADIUS";
     public static final int ADD_REMINDER_ZOOM = 17;
-    public static final int ENTER_KEY = 66;
+    public static final int SELECT_LOCATION_RESULT = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,11 +81,6 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        Intent intent = getIntent();
-        double latitude = intent.getExtras().getDouble(RemindersMapsActivity.LATITUDE);
-        double longitude = intent.getExtras().getDouble(RemindersMapsActivity.LONGITUTE);
-        mLatLng = new LatLng(latitude, longitude);
-
         mAddressTv = (TextView) findViewById(R.id.location_Tv);
         mNameEt = (EditText) findViewById(R.id.name_Et);
         mDescEt = (EditText) findViewById(R.id.desc_Et);
@@ -93,7 +88,6 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         mSeekBar = (AppCompatSeekBar) findViewById(R.id.radius_Sb);
         mAddFab = (FloatingActionButton) findViewById(R.id.addReminder_fab);
 
-        mAddressTv.setText(getAddress(mLatLng));
         mRadiusTv.setText(getString(R.string.radius_initialTv));
         mRadius = 1;
 
@@ -193,7 +187,6 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         }
         if (mLocationPermissionGranted) {
             getDeviceLocation();
-            updateUi();
         }
     }
 
@@ -255,8 +248,11 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()) {
                             mLastKnownLocation = (Location) task.getResult();
-                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), ADD_REMINDER_ZOOM);
+                            mLatLng = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
+                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(mLatLng, ADD_REMINDER_ZOOM);
                             mMap.moveCamera(cameraUpdate);
+                            updateUi();
+                            mAddressTv.setText(getAddress(mLatLng));
                         }
                         else {
                             Toast.makeText(AddReminderActivity.this, R.string.location_unavailable, Toast.LENGTH_SHORT).show();
@@ -271,6 +267,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
     }
 
     public void changeLocation(View view) {
-
+        Intent intent = new Intent(AddReminderActivity.this, SelectLocationMapsActivity.class);
+        startActivityForResult(intent, SELECT_LOCATION_RESULT);
     }
 }
