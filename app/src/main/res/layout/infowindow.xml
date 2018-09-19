@@ -8,31 +8,13 @@
         android:id="@+id/name_Tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="25sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:singleLine="true"/>
     <TextView
-        android:id="@+id/address_Tv"
+        android:id="@+id/desc_Tv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-    <LinearLayout
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/edit_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/edit_btn"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:textColor="@color/black"/>
-        <Button
-            android:id="@+id/dismiss_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/dismiss_btn"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:textColor="@color/black"/>
-    </LinearLayout>
+        android:layout_marginHorizontal="6dp"/>
 
 </LinearLayout>
