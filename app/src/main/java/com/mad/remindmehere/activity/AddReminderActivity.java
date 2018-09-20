@@ -18,9 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -66,7 +64,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
     public static final String LNG = "com.mad.RemindMeHere.LNG";
     public static final String RADIUS = "com.mad.RemindMeHere.RADIUS";
     public static final int ADD_REMINDER_ZOOM = 17;
-    public static final int SELECT_LOCATION_RESULT = 3;
+    public static final int SELECT_LOCATION_RESULT = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -222,10 +220,8 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         try {
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
-                MarkerOptions markerOptions = new MarkerOptions().position(mLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_reminder_marker));
-                mMap.addMarker(markerOptions);
-                CircleOptions circleOptions = new CircleOptions().center(mLatLng).radius(mRadius*10).strokeColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null)).fillColor(ResourcesCompat.getColor(getResources(), R.color.colorCircleFill, null));
-                mMap.addCircle(circleOptions);
+                addMarker(mLatLng);
+                addCircle(mLatLng);
                 mMap.getUiSettings().setScrollGesturesEnabled(false);
                 mMap.getUiSettings().setZoomGesturesEnabled(false);
                 mMap.getUiSettings().setZoomControlsEnabled(false);
@@ -234,8 +230,18 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
             }
         }
         catch (SecurityException e) {
-            Log.e("Exception: %s", e.getMessage());
+            Log.e(RemindersMapsActivity.TAG, e.getMessage());
         }
+    }
+
+    private void addMarker(LatLng latLng) {
+        MarkerOptions markerOptions = new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_reminder_marker));
+        mMap.addMarker(markerOptions);
+    }
+
+    private void addCircle(LatLng latLng) {
+        CircleOptions circleOptions = new CircleOptions().center(latLng).radius(mRadius*10).strokeColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null)).fillColor(ResourcesCompat.getColor(getResources(), R.color.colorCircleFill, null));
+        mMap.addCircle(circleOptions);
     }
 
     private void getDeviceLocation() {
@@ -249,25 +255,53 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
                         if (task.isSuccessful()) {
                             mLastKnownLocation = (Location) task.getResult();
                             mLatLng = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(mLatLng, ADD_REMINDER_ZOOM);
-                            mMap.moveCamera(cameraUpdate);
+                            moveCamera(mLatLng, false, true);
                             updateUi();
                             mAddressTv.setText(getAddress(mLatLng));
                         }
                         else {
-                            Toast.makeText(AddReminderActivity.this, R.string.location_unavailable, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AddReminderActivity.this, R.string.toast_location_unavailable, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
             }
         }
         catch (SecurityException e) {
-            Log.e(RemindersMapsActivity.TAG, "getDeviceLocation: SecurityException: " + e.getMessage());
+            Log.e(RemindersMapsActivity.TAG, e.getMessage());
+        }
+    }
+
+    private void moveCamera(LatLng latLng, boolean isAnimated, boolean moveCamera) {
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, ADD_REMINDER_ZOOM);
+        if (moveCamera) {
+            if (isAnimated) {
+                mMap.animateCamera(cameraUpdate);
+            }
+            if (!isAnimated) {
+                mMap.moveCamera(cameraUpdate);
+            }
         }
     }
 
     public void changeLocation(View view) {
         Intent intent = new Intent(AddReminderActivity.this, SelectLocationMapsActivity.class);
         startActivityForResult(intent, SELECT_LOCATION_RESULT);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SELECT_LOCATION_RESULT) {
+            if (resultCode == SELECT_LOCATION_RESULT) {
+                mMap.clear();
+                double lat = data.getDoubleExtra(SelectLocationMapsActivity.MARKER_LAT, RemindersMapsActivity.DEFAULT_LAT);
+                double lng = data.getDoubleExtra(SelectLocationMapsActivity.MARKER_LGN, RemindersMapsActivity.DEFAULT_LNG);
+                mLatLng = new LatLng(lat, lng);
+                addMarker(mLatLng);
+                addCircle(mLatLng);
+                moveCamera(mLatLng, false, true);
+                mAddressTv.setText(getAddress(mLatLng));
+            }
+        }
     }
 }

@@ -2,11 +2,11 @@ package com.mad.remindmehere.activity;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -46,6 +46,9 @@ public class SelectLocationMapsActivity extends AppCompatActivity implements OnM
     private Location mLastKnownLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private LatLng mReminderLatLng;
+    private boolean markerSet = false;
+    public static final String MARKER_LAT = "com.mad.remindmehere.MARKER_LAT";
+    public static final String MARKER_LGN = "com.mad.remindmehere.MARKER_LNG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,7 +151,7 @@ public class SelectLocationMapsActivity extends AppCompatActivity implements OnM
                             moveCamera(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), isAnimated, moveCamera);
                         }
                         else {
-                            Toast.makeText(SelectLocationMapsActivity.this, R.string.location_unavailable, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SelectLocationMapsActivity.this, R.string.toast_location_unavailable, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -209,10 +212,14 @@ public class SelectLocationMapsActivity extends AppCompatActivity implements OnM
 
     @Override
     public void onMapLongClick(LatLng latLng) {
-        mMap.clear();
+        addMarker(latLng);
+    }
 
+    private void addMarker(LatLng latLng) {
+        mMap.clear();
         MarkerOptions marker = new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_reminder_marker));
         mMap.addMarker(marker);
+        markerSet = true;
         mReminderLatLng = latLng;
     }
 
@@ -222,10 +229,20 @@ public class SelectLocationMapsActivity extends AppCompatActivity implements OnM
         }
         else {
             getDeviceLocation(true, true);
-            mMap.clear();
-            mReminderLatLng = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-            MarkerOptions marker = new MarkerOptions().position(mReminderLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_reminder_marker));
-            mMap.addMarker(marker);
+            addMarker(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()));
+        }
+    }
+
+    public void setLocation(View view) {
+        if (markerSet) {
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra(MARKER_LAT, mReminderLatLng.latitude);
+            resultIntent.putExtra(MARKER_LGN, mReminderLatLng.longitude);
+            setResult(AddReminderActivity.SELECT_LOCATION_RESULT, resultIntent);
+            finish();
+        }
+        else {
+            Toast.makeText(SelectLocationMapsActivity.this, R.string.toast_marker, Toast.LENGTH_SHORT).show();
         }
     }
 }

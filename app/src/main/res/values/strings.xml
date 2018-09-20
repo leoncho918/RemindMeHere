@@ -5,7 +5,7 @@
     <string name="dialog_message">Location Permission is required to locate where you are.</string>
     <string name="dialog_allow">Allow</string>
     <string name="dialog_deny">Deny</string>
-    <string name="location_unavailable">Unable to get current location</string>
+    <string name="toast_location_unavailable">Unable to get current location</string>
     <string name="menu_reminders">Reminders</string>
     <string name="menu_import">Import Reminders</string>
     <string name="menu_export">Export Reminders</string>
@@ -21,4 +21,5 @@
     <string name="title_activity_select_location_maps">Location Selection</string>
     <string name="edit_btn">Edit</string>
     <string name="dismiss_btn">Dismiss</string>
+    <string name="toast_marker">Long press on the map to place a marker</string>
 </resources>

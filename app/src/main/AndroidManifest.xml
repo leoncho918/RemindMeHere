@@ -57,6 +57,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mad.remindmehere.activity.AddReminderActivity" />
         </activity>
+        <activity android:name=".activity.RemindersListActivity"></activity>
     </application>
 
 </manifest>

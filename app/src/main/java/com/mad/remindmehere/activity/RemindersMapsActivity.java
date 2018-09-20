@@ -2,7 +2,6 @@ package com.mad.remindmehere.activity;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,19 +12,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.SearchView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 
@@ -54,8 +45,10 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     public static final String TAG = "MAD";
     public static final int MAP_ZOOM = 16;
-    public static final String LATITUDE = "LAT";
-    public static final String LONGITUTE = "LONG";
+    public static final String LATITUDE = "com.mad.remindmehere.LATITUDE";
+    public static final String LONGITUTE = "com.mad.remindmehere.LONGITUDE";
+    public static final double DEFAULT_LAT = 37.422;
+    public static final double DEFAULT_LNG = -122.084;
     public static final int ADD_REMINDER = 1;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation = null;
@@ -217,7 +210,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
                             moveCamera(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), isAnimated, moveCamera);
                         }
                         else {
-                            Toast.makeText(RemindersMapsActivity.this, R.string.location_unavailable, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RemindersMapsActivity.this, R.string.toast_location_unavailable, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -268,13 +261,14 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         Reminder newReminder = new Reminder();
-        if (requestCode == 1) {
+        if (requestCode == ADD_REMINDER) {
             if (resultCode == ADD_REMINDER) {
                 newReminder.setId(mReminders.size());
                 newReminder.setName(data.getStringExtra(AddReminderActivity.NAME));
                 newReminder.setDescription(data.getStringExtra(AddReminderActivity.DESCRIPTION));
-                newReminder.setLatLng(new LatLng(data.getDoubleExtra(AddReminderActivity.LAT, 37.422), data.getDoubleExtra(AddReminderActivity.LNG, -122.084)));
+                newReminder.setLatLng(new LatLng(data.getDoubleExtra(AddReminderActivity.LAT, DEFAULT_LAT), data.getDoubleExtra(AddReminderActivity.LNG, DEFAULT_LNG)));
                 newReminder.setRadius(data.getIntExtra(AddReminderActivity.RADIUS, 1));
                 mReminders.add(newReminder);
                 mMap.clear();
