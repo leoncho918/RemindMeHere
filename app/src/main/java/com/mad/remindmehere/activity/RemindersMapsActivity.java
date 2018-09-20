@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
@@ -15,6 +16,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -61,7 +63,26 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reminders_maps);
 
+        NavigationView navigationView = findViewById(R.id.nav_view);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                //Save item id for easy access
+                int id = item.getItemId();
+                //Close drawer when item is tapped
+                mDrawerLayout.closeDrawers();
+
+                if (id == R.id.nav_reminders) {
+                    Intent intent = new Intent(RemindersMapsActivity.this, RemindersListActivity.class);
+                    startActivity(intent);
+                }
+
+                return false;
+            }
+        });
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
@@ -111,7 +132,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         for (Reminder r : mReminders) {
             MarkerOptions markerOptions = new MarkerOptions().position(r.getLatLng()).title(r.getName()).snippet(r.getDescription()).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_reminder_marker));
             mMap.addMarker(markerOptions);
-            CircleOptions circleOptions = new CircleOptions().center(r.getLatLng()).radius(r.getRadius()*10).strokeColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null)).fillColor(ResourcesCompat.getColor(getResources(), R.color.colorCircleFill, null));
+            CircleOptions circleOptions = new CircleOptions().center(r.getLatLng()).radius(r.getRadius()).strokeColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null)).fillColor(ResourcesCompat.getColor(getResources(), R.color.colorCircleFill, null));
             mMap.addCircle(circleOptions);
         }
     }
@@ -254,8 +275,6 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
 
     public void addReminder(View view) {
         Intent intent = new Intent(RemindersMapsActivity.this, AddReminderActivity.class);
-        intent.putExtra(LATITUDE, mLastKnownLocation.getLatitude());
-        intent.putExtra(LONGITUTE, mLastKnownLocation.getLongitude());
         startActivityForResult(intent, ADD_REMINDER);
     }
 

@@ -10,18 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-        <android.support.design.widget.AppBarLayout
-            android:id="@+id/appbar"
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:popupTheme="@style/PopupOverlay" />
-
-        </android.support.design.widget.AppBarLayout>
+            android:layout_height="?attr/actionBarSize"
+            app:popupTheme="@style/PopupOverlay"
+            android:background="@color/colorPrimary"
+            app:title="@string/title_activity_add_reminder"/>
 
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
@@ -74,23 +70,14 @@
             android:onClick="changeLocation"
             android:layout_weight="0"/>
 
-        <TextView
-            android:id="@+id/radius_Tv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginHorizontal="16dp"
-            android:textAlignment="center"
-            android:textSize="20sp"/>
-
         <android.support.v7.widget.AppCompatSeekBar
             android:id="@+id/radius_Sb"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="16dp"
-            android:min="1"
-            android:max="10"/>
+            android:min="10"
+            android:max="50"/>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/addReminder_fab"

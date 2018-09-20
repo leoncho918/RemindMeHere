@@ -32,6 +32,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -50,7 +51,6 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
     private TextView mAddressTv;
     private EditText mNameEt;
     private EditText mDescEt;
-    private TextView mRadiusTv;
     private AppCompatSeekBar mSeekBar;
     private FloatingActionButton mAddFab;
     private boolean mLocationPermissionGranted;
@@ -58,12 +58,13 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
     private Location mLastKnownLocation;
     private int mRadius;
     private boolean mNameSet;
+    private Circle mCircle;
     public static final String NAME = "com.mad.RemindMeHere.NAME";
     public static final String DESCRIPTION = "com.mad.RemindMeHere.DESCRIPTION";
     public static final String LAT = "com.mad.RemindMeHere.LAT";
     public static final String LNG = "com.mad.RemindMeHere.LNG";
     public static final String RADIUS = "com.mad.RemindMeHere.RADIUS";
-    public static final int ADD_REMINDER_ZOOM = 17;
+    public static final int ADD_REMINDER_ZOOM = 18;
     public static final int SELECT_LOCATION_RESULT = 2;
 
     @Override
@@ -71,9 +72,14 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_reminder);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back));
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -82,12 +88,10 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         mAddressTv = (TextView) findViewById(R.id.location_Tv);
         mNameEt = (EditText) findViewById(R.id.name_Et);
         mDescEt = (EditText) findViewById(R.id.desc_Et);
-        mRadiusTv = (TextView) findViewById(R.id.radius_Tv);
         mSeekBar = (AppCompatSeekBar) findViewById(R.id.radius_Sb);
         mAddFab = (FloatingActionButton) findViewById(R.id.addReminder_fab);
 
-        mRadiusTv.setText(getString(R.string.radius_initialTv));
-        mRadius = 1;
+        mRadius = 10;
 
         mNameEt.addTextChangedListener(new TextWatcher() {
             @Override
@@ -114,7 +118,6 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mRadiusTv.setText(getString(R.string.radius_textview) + progress);
                 mRadius = progress;
                 updateCircle();
             }
@@ -132,11 +135,11 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
     }
 
     private void updateCircle() {
-        mMap.clear();
-        MarkerOptions markerOptions = new MarkerOptions().position(mLatLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_reminder_marker));
-        mMap.addMarker(markerOptions);
-        CircleOptions circleOptions = new CircleOptions().center(mLatLng).radius(mRadius*10).strokeColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null)).fillColor(ResourcesCompat.getColor(getResources(), R.color.colorCircleFill, null));
-        mMap.addCircle(circleOptions);
+        if (mCircle != null) {
+            mCircle.remove();
+        }
+        CircleOptions circleOptions = new CircleOptions().center(mLatLng).radius(mRadius).strokeColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null)).fillColor(ResourcesCompat.getColor(getResources(), R.color.colorCircleFill, null));
+        mCircle = mMap.addCircle(circleOptions);
     }
 
     private String getAddress(LatLng latLng) {
@@ -240,8 +243,8 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
     }
 
     private void addCircle(LatLng latLng) {
-        CircleOptions circleOptions = new CircleOptions().center(latLng).radius(mRadius*10).strokeColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null)).fillColor(ResourcesCompat.getColor(getResources(), R.color.colorCircleFill, null));
-        mMap.addCircle(circleOptions);
+        CircleOptions circleOptions = new CircleOptions().center(latLng).radius(mRadius).strokeColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null)).fillColor(ResourcesCompat.getColor(getResources(), R.color.colorCircleFill, null));
+        mCircle = mMap.addCircle(circleOptions);
     }
 
     private void getDeviceLocation() {
