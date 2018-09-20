@@ -29,7 +29,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".activity.RemindersMapsActivity">
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -44,11 +44,11 @@
         <activity
             android:name=".activity.AddReminderActivity"
             android:label="@string/title_activity_add_reminder"
-            android:parentActivityName=".activity.RemindersMapsActivity"
+            android:parentActivityName=".activity.MainActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.mad.remindmehere.activity.RemindersMapsActivity" />
+                android:value="com.mad.remindmehere.activity.MainActivity" />
         </activity>
         <activity
             android:name=".activity.SelectLocationMapsActivity"

@@ -39,7 +39,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.mad.remindmehere.R;
-import com.mad.remindmehere.model.Reminder;
 
 import java.io.IOException;
 import java.util.List;
@@ -168,7 +167,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
             resultIntent.putExtra(LNG, lng);
             resultIntent.putExtra(RADIUS, mRadius);
 
-            setResult(RemindersMapsActivity.ADD_REMINDER, resultIntent);
+            setResult(MainActivity.ADD_REMINDER, resultIntent);
             finish();
         }
         else {
@@ -200,7 +199,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    RemindersMapsActivity.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                    MainActivity.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
     }
 
@@ -233,7 +232,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
             }
         }
         catch (SecurityException e) {
-            Log.e(RemindersMapsActivity.TAG, e.getMessage());
+            Log.e(MainActivity.TAG, e.getMessage());
         }
     }
 
@@ -270,7 +269,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
             }
         }
         catch (SecurityException e) {
-            Log.e(RemindersMapsActivity.TAG, e.getMessage());
+            Log.e(MainActivity.TAG, e.getMessage());
         }
     }
 
@@ -297,8 +296,8 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         if (requestCode == SELECT_LOCATION_RESULT) {
             if (resultCode == SELECT_LOCATION_RESULT) {
                 mMap.clear();
-                double lat = data.getDoubleExtra(SelectLocationMapsActivity.MARKER_LAT, RemindersMapsActivity.DEFAULT_LAT);
-                double lng = data.getDoubleExtra(SelectLocationMapsActivity.MARKER_LGN, RemindersMapsActivity.DEFAULT_LNG);
+                double lat = data.getDoubleExtra(SelectLocationMapsActivity.MARKER_LAT, MainActivity.DEFAULT_LAT);
+                double lng = data.getDoubleExtra(SelectLocationMapsActivity.MARKER_LGN, MainActivity.DEFAULT_LNG);
                 mLatLng = new LatLng(lat, lng);
                 addMarker(mLatLng);
                 addCircle(mLatLng);

@@ -6,6 +6,7 @@
     <string name="dialog_allow">Allow</string>
     <string name="dialog_deny">Deny</string>
     <string name="toast_location_unavailable">Unable to get current location</string>
+    <string name="menu_map">Map</string>
     <string name="menu_reminders">Reminders</string>
     <string name="menu_import">Import Reminders</string>
     <string name="menu_export">Export Reminders</string>
@@ -21,4 +22,9 @@
     <string name="dismiss_btn">Dismiss</string>
     <string name="toast_marker">Long press on the map to place a marker</string>
     <string name="title_activity_reminders_list">Reminders</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

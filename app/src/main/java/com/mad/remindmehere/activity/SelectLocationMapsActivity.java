@@ -106,7 +106,7 @@ public class SelectLocationMapsActivity extends AppCompatActivity implements OnM
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    RemindersMapsActivity.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                    MainActivity.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
     }
 
@@ -165,12 +165,12 @@ public class SelectLocationMapsActivity extends AppCompatActivity implements OnM
             }
         }
         catch (SecurityException e) {
-            Log.e(RemindersMapsActivity.TAG, "getDeviceLocation: SecurityException: " + e.getMessage());
+            Log.e(MainActivity.TAG, "getDeviceLocation: SecurityException: " + e.getMessage());
         }
     }
 
     private void moveCamera(LatLng latLng, boolean isAnimated, boolean moveCamera) {
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, RemindersMapsActivity.MAP_ZOOM);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, MainActivity.MAP_ZOOM);
         if (moveCamera) {
             if (isAnimated) {
                 mMap.animateCamera(cameraUpdate);
