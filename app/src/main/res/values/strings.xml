@@ -21,4 +21,5 @@
     <string name="dismiss_btn">Dismiss</string>
     <string name="toast_marker">Long press on the map to place a marker</string>
     <string name="title_activity_reminders_list">Reminders</string>
+    <string name="reminder_item_radius">Radius:\u0020</string>
 </resources>
