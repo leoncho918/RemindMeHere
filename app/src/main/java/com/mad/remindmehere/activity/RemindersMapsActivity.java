@@ -53,7 +53,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     public static final double DEFAULT_LAT = 37.422;
     public static final double DEFAULT_LNG = -122.084;
     public static final int ADD_REMINDER = 1;
-    public static final int LIST_REMINDER = 2;
+    public static final int LIST_REMINDER = 3;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation = null;
     private FusedLocationProviderClient mFusedLocationProviderClient;
@@ -299,7 +299,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
             }
         }
         if (requestCode == LIST_REMINDER) {
-            if (requestCode == LIST_REMINDER) {
+            if (resultCode == LIST_REMINDER) {
                 LatLng latLng = new LatLng(data.getDoubleExtra(ReminderAdapter.LAT, DEFAULT_LAT), data.getDoubleExtra(ReminderAdapter.LNG, DEFAULT_LNG));
                 moveCamera(latLng, true, true);
             }

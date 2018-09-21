@@ -19,7 +19,8 @@
                         android:layout_height="?attr/actionBarSize"
                         android:background="@color/colorPrimary"
                         android:elevation="4dp"
-                        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"/>
+                        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+                        app:title="@string/title_activity_reminders_maps"/>
 
                     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
                         xmlns:tools="http://schemas.android.com/tools"

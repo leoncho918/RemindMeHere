@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RemindMeHere</string>
+    <string name="app_name">Reminders</string>
     <string name="title_activity_reminders_maps">Map</string>
     <string name="dialog_title">Location Permission Required</string>
     <string name="dialog_message">Location Permission is required to locate where you are.</string>
