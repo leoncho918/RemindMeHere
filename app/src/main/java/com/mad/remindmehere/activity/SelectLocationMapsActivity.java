@@ -36,6 +36,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.mad.remindmehere.MapFragment;
 import com.mad.remindmehere.R;
 
 public class SelectLocationMapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
@@ -170,7 +171,7 @@ public class SelectLocationMapsActivity extends AppCompatActivity implements OnM
     }
 
     private void moveCamera(LatLng latLng, boolean isAnimated, boolean moveCamera) {
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, MainActivity.MAP_ZOOM);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, MapFragment.MAP_ZOOM);
         if (moveCamera) {
             if (isAnimated) {
                 mMap.animateCamera(cameraUpdate);

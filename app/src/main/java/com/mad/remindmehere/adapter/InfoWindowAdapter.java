@@ -1,11 +1,13 @@
 package com.mad.remindmehere.adapter;
 
 import android.app.Activity;
+import android.content.Context;
 import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
+import com.mad.remindmehere.MapFragment;
 import com.mad.remindmehere.R;
 
 public class InfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
