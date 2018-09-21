@@ -1,7 +1,9 @@
 package com.mad.remindmehere.adapter;
 
+import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.support.annotation.NonNull;
@@ -10,11 +12,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.mad.remindmehere.activity.RemindersMapsActivity;
 import com.mad.remindmehere.model.Reminder;
 import com.mad.remindmehere.R;
 
@@ -26,10 +30,14 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHo
 
     ArrayList<Reminder> mReminders;
     Context mContext;
+    Activity mActivity;
+    public static final String LAT = "com.mad.remindmehere.ReminderAdapter.LAT";
+    public static final String LNG = "com.mad.remindmehere.ReminderAdapter.LNG";
 
-    public ReminderAdapter(Context context, ArrayList<Reminder> trains) {
+    public ReminderAdapter(Context context, ArrayList<Reminder> trains, Activity activity) {
         this.mReminders = trains;
         this.mContext = context;
+        this.mActivity = activity;
     }
 
     @NonNull
@@ -58,10 +66,23 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ReminderAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ReminderAdapter.ViewHolder holder, final int position) {
         holder.mReminderName.setText(mReminders.get(position).getName());
         holder.mReminderAddress.setText(getAddress(mReminders.get(position).getLatLng()));
         holder.mReminderRadius.setText(mContext.getResources().getString(R.string.reminder_item_radius) + mReminders.get(position).getRadius());
+
+        holder.mReminderLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent resultIntent = new Intent();
+                double lat = mReminders.get(position).getLatLng().latitude;
+                double lng = mReminders.get(position).getLatLng().longitude;
+                resultIntent.putExtra(LAT, lat);
+                resultIntent.putExtra(LNG, lng);
+                mActivity.setResult(RemindersMapsActivity.LIST_REMINDER, resultIntent);
+                mActivity.finish();
+            }
+        });
     }
 
     @Override
@@ -74,12 +95,14 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHo
         private TextView mReminderName;
         private TextView mReminderAddress;
         private TextView mReminderRadius;
+        private RelativeLayout mReminderLayout;
 
         public ViewHolder(View itemView) {
             super(itemView);
             mReminderName = itemView.findViewById(R.id.reminder_name_tv);
             mReminderAddress = itemView.findViewById(R.id.reminder_address_tv);
             mReminderRadius = itemView.findViewById(R.id.reminder_radius_tv);
+            mReminderLayout = itemView.findViewById(R.id.reminder_layout);
         }
     }
 

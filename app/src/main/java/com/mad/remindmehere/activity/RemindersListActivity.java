@@ -32,6 +32,8 @@ public class RemindersListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_reminders_list);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
 
@@ -49,8 +51,17 @@ public class RemindersListActivity extends AppCompatActivity {
 
         mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
         mReminders.add(new Reminder(1, "Milk", "Get milk", new LatLng(-32.915609, 150.040804), 30));
+        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
 
-        ReminderAdapter adapter = new ReminderAdapter(getApplicationContext(), mReminders);
+
+        ReminderAdapter adapter = new ReminderAdapter(getApplicationContext(), mReminders, this);
         mRecyclerView.setAdapter(adapter);
     }
 

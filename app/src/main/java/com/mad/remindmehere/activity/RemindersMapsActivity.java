@@ -37,6 +37,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.mad.remindmehere.R;
 import com.mad.remindmehere.adapter.InfoWindowAdapter;
+import com.mad.remindmehere.adapter.ReminderAdapter;
 import com.mad.remindmehere.model.Reminder;
 
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     public static final double DEFAULT_LAT = 37.422;
     public static final double DEFAULT_LNG = -122.084;
     public static final int ADD_REMINDER = 1;
+    public static final int LIST_REMINDER = 2;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation = null;
     private FusedLocationProviderClient mFusedLocationProviderClient;
@@ -76,7 +78,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
 
                 if (id == R.id.nav_reminders) {
                     Intent intent = new Intent(RemindersMapsActivity.this, RemindersListActivity.class);
-                    startActivity(intent);
+                    startActivityForResult(intent, LIST_REMINDER);
                 }
 
                 return false;
@@ -294,6 +296,12 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
                 mMap.clear();
                 moveCamera(latLng, true, true);
                 populateRemindersOnMap();
+            }
+        }
+        if (requestCode == LIST_REMINDER) {
+            if (requestCode == LIST_REMINDER) {
+                LatLng latLng = new LatLng(data.getDoubleExtra(ReminderAdapter.LAT, DEFAULT_LAT), data.getDoubleExtra(ReminderAdapter.LNG, DEFAULT_LNG));
+                moveCamera(latLng, true, true);
             }
         }
     }
