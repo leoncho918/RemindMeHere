@@ -125,7 +125,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     }
 
     private void populateReminders() {
-        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 5));
+        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
     }
 
     private void populateRemindersOnMap() {
@@ -284,13 +284,15 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         Reminder newReminder = new Reminder();
         if (requestCode == ADD_REMINDER) {
             if (resultCode == ADD_REMINDER) {
+                LatLng latLng = new LatLng(data.getDoubleExtra(AddReminderActivity.LAT, DEFAULT_LAT), data.getDoubleExtra(AddReminderActivity.LNG, DEFAULT_LNG));
                 newReminder.setId(mReminders.size());
                 newReminder.setName(data.getStringExtra(AddReminderActivity.NAME));
                 newReminder.setDescription(data.getStringExtra(AddReminderActivity.DESCRIPTION));
-                newReminder.setLatLng(new LatLng(data.getDoubleExtra(AddReminderActivity.LAT, DEFAULT_LAT), data.getDoubleExtra(AddReminderActivity.LNG, DEFAULT_LNG)));
+                newReminder.setLatLng(latLng);
                 newReminder.setRadius(data.getIntExtra(AddReminderActivity.RADIUS, 1));
                 mReminders.add(newReminder);
                 mMap.clear();
+                moveCamera(latLng, true, true);
                 populateRemindersOnMap();
             }
         }
