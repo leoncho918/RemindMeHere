@@ -8,6 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -30,6 +32,7 @@ public class RemindersListActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     private ArrayList<Reminder> mReminders = new ArrayList<Reminder>();
+    private ArrayList<Reminder> mRemindersSearch;
     private EditText mSearchViewEt;
 
     @Override
@@ -60,14 +63,14 @@ public class RemindersListActivity extends AppCompatActivity {
 
         mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
         mReminders.add(new Reminder(1, "Milk", "Get milk", new LatLng(-32.915609, 150.040804), 30));
-        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Eggs", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Lettuce", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Cheese", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Cheese Cake", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Eggplant", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Tomato", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Potato", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        mReminders.add(new Reminder(0, "Bread", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
 
 
         ReminderAdapter adapter = new ReminderAdapter(getApplicationContext(), mReminders, this);
@@ -112,6 +115,40 @@ public class RemindersListActivity extends AppCompatActivity {
                 inputMethodManager.hideSoftInputFromWindow(mSearchViewEt.getWindowToken(), 0);
             }
         });
+        searchReminder();
         return true;
+    }
+
+    private void searchReminder() {
+        mSearchViewEt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                ArrayList<Reminder> resultList = new ArrayList<Reminder>();
+                for (Reminder reminder : mReminders) {
+                    String sName = s.toString().toLowerCase();
+                    String rName = reminder.getName().toLowerCase();
+                    if (rName.contains(sName)) {
+                        resultList.add(reminder);
+                    }
+                }
+                mRemindersSearch = resultList;
+                changeList();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+    }
+
+    private void changeList() {
+        ReminderAdapter adapter = new ReminderAdapter(getApplicationContext(), mRemindersSearch, this);
+        mRecyclerView.setAdapter(adapter);
     }
 }
