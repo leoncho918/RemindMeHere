@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
@@ -21,11 +22,17 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,7 +48,6 @@ import com.mad.remindmehere.R;
 public class SelectLocationMapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
     private GoogleMap mMap;
-    private EditText mSearchViewEt;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
@@ -49,13 +55,18 @@ public class SelectLocationMapsActivity extends AppCompatActivity implements OnM
     private boolean markerSet = false;
     public static final String MARKER_LAT = "com.mad.remindmehere.MARKER_LAT";
     public static final String MARKER_LGN = "com.mad.remindmehere.MARKER_LNG";
+    public static final int PLACE_AUTOCOMPLETE_REQUESTCODE = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_location_maps);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            this.getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_back));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
 
@@ -92,6 +103,35 @@ public class SelectLocationMapsActivity extends AppCompatActivity implements OnM
         getDeviceLocation(false, true);
 
         mMap.setOnMapLongClickListener(this);
+    }
+
+    private void startPlaceAutoComplete() {
+        try {
+            Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY).build(SelectLocationMapsActivity.this);
+            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUESTCODE);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        } catch (GooglePlayServicesRepairableException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_AUTOCOMPLETE_REQUESTCODE) {
+            switch (resultCode) {
+                case RESULT_OK:
+                    Place place = PlaceAutocomplete.getPlace(SelectLocationMapsActivity.this, data);
+                    LatLng searchedLagLng = place.getLatLng();
+                    addMarker(searchedLagLng);
+                    moveCamera(searchedLagLng, true, true);
+                    break;
+                case PlaceAutocomplete.RESULT_ERROR:
+                    Status status = PlaceAutocomplete.getStatus(SelectLocationMapsActivity.this, data);
+                    Log.i(RemindersMapsActivity.TAG, status.getStatusMessage());
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
@@ -191,27 +231,8 @@ public class SelectLocationMapsActivity extends AppCompatActivity implements OnM
         searchItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputMethodManager.showSoftInput(getCurrentFocus(), InputMethodManager.SHOW_IMPLICIT);
-                mSearchViewEt.requestFocus();
+                startPlaceAutoComplete();
                 return false;
-            }
-        });
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        //Expanding searchview when icon is pressed.
-        searchView.setIconified(false);
-        searchView.setIconifiedByDefault(false);
-        //Removing search icon
-        int magnifyId = getResources().getIdentifier("android:id/search_mag_icon", null, null);
-        ImageView magnifyIcon = (ImageView) searchView.findViewById(magnifyId);
-        magnifyIcon.setLayoutParams(new LinearLayout.LayoutParams(0, 0));
-        int editTextId = getResources().getIdentifier("android:id/search_src_text", null, null);
-        mSearchViewEt = (EditText) searchView.findViewById(editTextId);
-        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputMethodManager.hideSoftInputFromWindow(mSearchViewEt.getWindowToken(), 0);
             }
         });
         return true;
