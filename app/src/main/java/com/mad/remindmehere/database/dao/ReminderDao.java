@@ -22,7 +22,7 @@ public interface ReminderDao {
     @Update
     void updateReminder(Reminder reminder);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert()
     void addReminder(Reminder reminder);
 
     @Delete

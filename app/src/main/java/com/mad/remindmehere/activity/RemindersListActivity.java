@@ -171,7 +171,6 @@ public class RemindersListActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<Reminder> reminders) {
             super.onPostExecute(reminders);
-            mReminders = reminders;
             populateRecyclerView();
         }
     }
