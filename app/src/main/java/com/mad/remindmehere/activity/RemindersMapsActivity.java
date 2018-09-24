@@ -2,10 +2,12 @@ package com.mad.remindmehere.activity;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.arch.persistence.room.Room;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -40,6 +42,7 @@ import com.google.android.gms.tasks.Task;
 import com.mad.remindmehere.R;
 import com.mad.remindmehere.adapter.InfoWindowAdapter;
 import com.mad.remindmehere.adapter.ReminderAdapter;
+import com.mad.remindmehere.database.ReminderDatabase;
 import com.mad.remindmehere.model.Reminder;
 
 import java.util.ArrayList;
@@ -61,6 +64,8 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private DrawerLayout mDrawerLayout;
     private ArrayList<Reminder> mReminders = new ArrayList<Reminder>();
+    private static final String DATABASE_NAME = "reminders_db";
+    private ReminderDatabase mReminderDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,20 +129,27 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
 
         getDeviceLocation(false, true);
 
-        populateReminders();
+        initialiseDatabase();
+
+        getReminders();
 
         populateRemindersOnMap();
     }
 
-    private void populateReminders() {
-        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+    private void initialiseDatabase() {
+        mReminderDatabase = Room.databaseBuilder(getApplicationContext(), ReminderDatabase.class, DATABASE_NAME).fallbackToDestructiveMigration().build();
+    }
+
+    private void getReminders() {
+        RefreshRemindersAsyncTask task = new RefreshRemindersAsyncTask();
+        task.execute();
     }
 
     private void populateRemindersOnMap() {
         for (Reminder r : mReminders) {
-            MarkerOptions markerOptions = new MarkerOptions().position(r.getLatLng()).title(r.getName()).snippet(r.getDescription()).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_reminder_marker));
+            MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(r.getLat(), r.getLng())).title(r.getName()).snippet(r.getDescription()).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_reminder_marker));
             mMap.addMarker(markerOptions);
-            CircleOptions circleOptions = new CircleOptions().center(r.getLatLng()).radius(r.getRadius()).strokeColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null)).fillColor(ResourcesCompat.getColor(getResources(), R.color.colorCircleFill, null));
+            CircleOptions circleOptions = new CircleOptions().center(new LatLng(r.getLat(), r.getLng())).radius(r.getRadius()).strokeColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null)).fillColor(ResourcesCompat.getColor(getResources(), R.color.colorCircleFill, null));
             mMap.addCircle(circleOptions);
         }
     }
@@ -293,9 +305,12 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
                 newReminder.setId(mReminders.size());
                 newReminder.setName(data.getStringExtra(AddReminderActivity.NAME));
                 newReminder.setDescription(data.getStringExtra(AddReminderActivity.DESCRIPTION));
-                newReminder.setLatLng(latLng);
+                newReminder.setLat(data.getDoubleExtra(AddReminderActivity.LAT, DEFAULT_LAT));
+                newReminder.setLng(data.getDoubleExtra(AddReminderActivity.LNG, DEFAULT_LNG));
                 newReminder.setRadius(data.getIntExtra(AddReminderActivity.RADIUS, 1));
                 mReminders.add(newReminder);
+                AddRemindersAsyncTask task = new AddRemindersAsyncTask();
+                task.execute(newReminder);
                 mMap.clear();
                 moveCamera(latLng, true, true);
                 populateRemindersOnMap();
@@ -306,6 +321,36 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
                 LatLng latLng = new LatLng(data.getDoubleExtra(ReminderAdapter.LAT, DEFAULT_LAT), data.getDoubleExtra(ReminderAdapter.LNG, DEFAULT_LNG));
                 moveCamera(latLng, true, true);
             }
+        }
+    }
+
+    private class RefreshRemindersAsyncTask extends AsyncTask<Void, Void, ArrayList<Reminder>> {
+        @Override
+        protected ArrayList<Reminder> doInBackground(Void... voids) {
+            ArrayList<Reminder> reminders = new ArrayList<Reminder>();
+            reminders = (ArrayList<Reminder>)mReminderDatabase.reminderDao().getAll();
+            return reminders;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Reminder> reminders) {
+            super.onPostExecute(reminders);
+            mReminders = reminders;
+            populateRemindersOnMap();
+        }
+    }
+
+    private class AddRemindersAsyncTask extends AsyncTask<Reminder, Void, Void> {
+        @Override
+        protected Void doInBackground(Reminder... reminders) {
+            mReminderDatabase.reminderDao().addReminder(reminders[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            populateRemindersOnMap();
         }
     }
 }

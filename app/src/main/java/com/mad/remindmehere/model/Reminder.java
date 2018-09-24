@@ -1,19 +1,38 @@
 package com.mad.remindmehere.model;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.ColorInt;
+
 import com.google.android.gms.maps.model.LatLng;
 
+@Entity
 public class Reminder {
+    @PrimaryKey(autoGenerate = true)
     private int mId;
+
+    @ColumnInfo(name = "name")
     private String mName;
+
+    @ColumnInfo(name = "desc")
     private String mDescription;
-    private LatLng mLatLng;
+
+    @ColumnInfo(name = "lat")
+    private double mLat;
+
+    @ColumnInfo(name = "lng")
+    private double mLng;
+
+    @ColumnInfo(name = "radius")
     private int mRadius;
 
-    public Reminder(int mId, String mName, String mDescription, LatLng mLatLng, int mRadius) {
+    public Reminder(int mId, String mName, String mDescription, double lat, double lng, int mRadius) {
         this.mId = mId;
         this.mName = mName;
         this.mDescription = mDescription;
-        this.mLatLng = mLatLng;
+        this.mLat = lat;
+        this.mLng = lng;
         this.mRadius = mRadius;
     }
 
@@ -44,12 +63,20 @@ public class Reminder {
         this.mDescription = mDescription;
     }
 
-    public LatLng getLatLng() {
-        return mLatLng;
+    public double getLat() {
+        return mLat;
     }
 
-    public void setLatLng(LatLng mLatLng) {
-        this.mLatLng = mLatLng;
+    public void setLat(double mLat) {
+        this.mLat = mLat;
+    }
+
+    public double getLng() {
+        return mLng;
+    }
+
+    public void setLng(double mLng) {
+        this.mLng = mLng;
     }
 
     public int getRadius() {

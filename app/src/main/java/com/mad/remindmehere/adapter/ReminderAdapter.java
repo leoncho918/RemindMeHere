@@ -68,15 +68,15 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ReminderAdapter.ViewHolder holder, final int position) {
         holder.mReminderName.setText(mReminders.get(position).getName());
-        holder.mReminderAddress.setText(getAddress(mReminders.get(position).getLatLng()));
+        holder.mReminderAddress.setText(getAddress(new LatLng(mReminders.get(position).getLat(), mReminders.get(position).getLng())));
         holder.mReminderRadius.setText(mContext.getResources().getString(R.string.reminder_item_radius) + mReminders.get(position).getRadius());
 
         holder.mReminderLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent resultIntent = new Intent();
-                double lat = mReminders.get(position).getLatLng().latitude;
-                double lng = mReminders.get(position).getLatLng().longitude;
+                double lat = mReminders.get(position).getLat();
+                double lng = mReminders.get(position).getLng();
                 resultIntent.putExtra(LAT, lat);
                 resultIntent.putExtra(LNG, lng);
                 mActivity.setResult(RemindersMapsActivity.LIST_REMINDER, resultIntent);

@@ -1,7 +1,9 @@
 package com.mad.remindmehere.activity;
 
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +26,7 @@ import android.widget.LinearLayout;
 import com.google.android.gms.maps.model.LatLng;
 import com.mad.remindmehere.R;
 import com.mad.remindmehere.adapter.ReminderAdapter;
+import com.mad.remindmehere.database.ReminderDatabase;
 import com.mad.remindmehere.model.Reminder;
 
 import java.util.ArrayList;
@@ -34,6 +37,8 @@ public class RemindersListActivity extends AppCompatActivity {
     private ArrayList<Reminder> mReminders = new ArrayList<Reminder>();
     private ArrayList<Reminder> mRemindersSearch;
     private EditText mSearchViewEt;
+    private ReminderDatabase mReminderDatabase;
+    private static final String DATABASE_NAME = "reminders_db";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,20 +66,18 @@ public class RemindersListActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(linearLayoutManager);
 
-        mReminders.add(new Reminder(0, "Groceries", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(1, "Milk", "Get milk", new LatLng(-32.915609, 150.040804), 30));
-        mReminders.add(new Reminder(0, "Eggs", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(0, "Lettuce", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(0, "Cheese", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(0, "Cheese Cake", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(0, "Eggplant", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(0, "Tomato", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(0, "Potato", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
-        mReminders.add(new Reminder(0, "Bread", "Get groceries", new LatLng(-33.915609, 151.040804), 10));
+        initialiseDatabase();
 
+        getReminders();
+    }
 
-        ReminderAdapter adapter = new ReminderAdapter(getApplicationContext(), mReminders, this);
-        mRecyclerView.setAdapter(adapter);
+    private void initialiseDatabase() {
+        mReminderDatabase = Room.databaseBuilder(getApplicationContext(), ReminderDatabase.class, DATABASE_NAME).fallbackToDestructiveMigration().build();
+    }
+
+    private void getReminders() {
+        RefreshRemindersAsyncTask task = new RefreshRemindersAsyncTask();
+        task.execute();
     }
 
     public void addReminder(View view) {
@@ -150,5 +153,26 @@ public class RemindersListActivity extends AppCompatActivity {
     private void changeList() {
         ReminderAdapter adapter = new ReminderAdapter(getApplicationContext(), mRemindersSearch, this);
         mRecyclerView.setAdapter(adapter);
+    }
+
+    private void populateRecyclerView() {
+        ReminderAdapter adapter = new ReminderAdapter(getApplicationContext(), mReminders, this);
+        mRecyclerView.setAdapter(adapter);
+    }
+
+    private class RefreshRemindersAsyncTask extends AsyncTask<Void, Void, ArrayList<Reminder>> {
+        @Override
+        protected ArrayList<Reminder> doInBackground(Void... voids) {
+            ArrayList<Reminder> reminders = new ArrayList<Reminder>();
+            reminders = (ArrayList<Reminder>)mReminderDatabase.reminderDao().getAll();
+            return reminders;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Reminder> reminders) {
+            super.onPostExecute(reminders);
+            mReminders = reminders;
+            populateRecyclerView();
+        }
     }
 }
