@@ -186,7 +186,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            getLocationPermission();
+            RemindersMapsActivity.getLocationPermission(this, getApplicationContext());
         }
         else {
             mLocationPermissionGranted = true;
@@ -196,25 +196,13 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
-    private void getLocationPermission() {
-        //Request location permission, so that app has the location of the device. The result of the permission request is handled by onRequestPermissionsResult.
-        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            mLocationPermissionGranted = true;
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    RemindersMapsActivity.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        }
-    }
-
     //Called when user allows of denies a permission
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         //If permission denied create dialog to tell user why permission is needed
         if (!(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+            RemindersMapsActivity.createLocationDialog(this, AddReminderActivity.this);
         }
         //else enable location ui
         else {
@@ -226,7 +214,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
 
     private void updateUi() {
         try {
-            if (mLocationPermissionGranted) {
+            if (mLocationPermissionGranted && mLatLng != null) {
                 mMap.setMyLocationEnabled(true);
                 addMarker(mLatLng);
                 addCircle(mLatLng);

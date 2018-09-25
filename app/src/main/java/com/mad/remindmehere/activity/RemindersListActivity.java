@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.SearchView;
@@ -27,6 +28,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.mad.remindmehere.R;
 import com.mad.remindmehere.adapter.ReminderAdapter;
 import com.mad.remindmehere.database.ReminderDatabase;
+import com.mad.remindmehere.helper.RecyclerItemTouchHelper;
 import com.mad.remindmehere.model.Reminder;
 
 import java.util.ArrayList;
@@ -65,9 +67,17 @@ public class RemindersListActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(linearLayoutManager);
 
+        startItemTouchHelper();
+
         initialiseDatabase();
 
         getReminders();
+    }
+
+    private void startItemTouchHelper() {
+        RecyclerItemTouchHelper itemTouchHelper = new RecyclerItemTouchHelper();
+        ItemTouchHelper touchHelper = new ItemTouchHelper(itemTouchHelper);
+        touchHelper.attachToRecyclerView(mRecyclerView);
     }
 
     private void initialiseDatabase() {

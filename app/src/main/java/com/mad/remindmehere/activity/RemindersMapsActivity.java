@@ -61,7 +61,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     public static final double DEFAULT_LNG = -122.084;
     public static final int ADD_REMINDER = 1;
     public static final int LIST_REMINDER = 3;
-    private boolean mLocationPermissionGranted;
+    private static boolean mLocationPermissionGranted;
     private Location mLastKnownLocation = null;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private DrawerLayout mDrawerLayout;
@@ -158,7 +158,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     /**
      * Prompts the user for permission to use the device location.
      */
-    private void getLocationPermission(Activity activity, Context context) {
+    public static void getLocationPermission(Activity activity, Context context) {
          //Request location permission, so that app has the location of the device. The result of the permission request is handled by onRequestPermissionsResult.
         if (ContextCompat.checkSelfPermission(context,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -177,7 +177,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         //If permission denied create dialog to tell user why permission is needed
         if (!(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-            createLocationDialog(getApplicationContext());
+            createLocationDialog(this, RemindersMapsActivity.this);
         }
         //else enable location ui
         else {
@@ -188,7 +188,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     }
 
     //Method to create dialog to notify user about location permission
-    public void createLocationDialog(Context context) {
+    public static void createLocationDialog(final Activity activity, final Context context) {
         //Create alertdialog builder
         AlertDialog.Builder alertDlg = new AlertDialog.Builder(context);
         //Set title and message of alertdialog
@@ -199,7 +199,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
             //Called when user clicks on allow button
             public void onClick(DialogInterface dialog, int which) {
                 //Get user's permission for location
-                getLocationPermission(RemindersMapsActivity.this, getApplicationContext());
+                getLocationPermission(activity, context);
             }
         });
         //OnClickListener for alertdialog's negative button
@@ -273,11 +273,10 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     }
 
     public void myLocation(View view) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            getLocationPermission(RemindersMapsActivity.this, getApplicationContext());
-        }
-        else {
+        getLocationPermission(RemindersMapsActivity.this, getApplicationContext());
+        if (!(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
             getDeviceLocation(true, true);
+            updateLocationUI();
         }
     }
 
