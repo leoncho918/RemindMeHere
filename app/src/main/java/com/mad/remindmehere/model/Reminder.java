@@ -4,12 +4,15 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 
 import com.google.android.gms.maps.model.LatLng;
 
-@Entity
+@Entity(tableName = "reminders")
 public class Reminder {
+    @NonNull
     @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
     private int mId;
 
     @ColumnInfo(name = "name")

@@ -64,7 +64,6 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private DrawerLayout mDrawerLayout;
     private ArrayList<Reminder> mReminders = new ArrayList<Reminder>();
-    private static final String DATABASE_NAME = "reminders_db";
     private ReminderDatabase mReminderDatabase;
 
     @Override
@@ -137,7 +136,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     }
 
     private void initialiseDatabase() {
-        mReminderDatabase = Room.databaseBuilder(getApplicationContext(), ReminderDatabase.class, DATABASE_NAME).fallbackToDestructiveMigration().build();
+        mReminderDatabase = ReminderDatabase.getReminderDatabase(getApplicationContext());
     }
 
     private void getReminders() {
@@ -302,7 +301,6 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         if (requestCode == ADD_REMINDER) {
             if (resultCode == ADD_REMINDER) {
                 LatLng latLng = new LatLng(data.getDoubleExtra(AddReminderActivity.LAT, DEFAULT_LAT), data.getDoubleExtra(AddReminderActivity.LNG, DEFAULT_LNG));
-                newReminder.setId(mReminders.size());
                 newReminder.setName(data.getStringExtra(AddReminderActivity.NAME));
                 newReminder.setDescription(data.getStringExtra(AddReminderActivity.DESCRIPTION));
                 newReminder.setLat(data.getDoubleExtra(AddReminderActivity.LAT, DEFAULT_LAT));

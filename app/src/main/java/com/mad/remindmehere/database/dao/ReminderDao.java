@@ -13,16 +13,16 @@ import java.util.List;
 
 @Dao
 public interface ReminderDao {
-    @Query("SELECT * FROM Reminder")
+    @Query("SELECT * FROM reminders")
     List<Reminder> getAll();
 
-    @Query("SELECT *FROM Reminder WHERE mId = :id")
+    @Query("SELECT *FROM reminders WHERE id = :id")
     List<Reminder> getWithId(int id);
 
     @Update
     void updateReminder(Reminder reminder);
 
-    @Insert()
+    @Insert
     void addReminder(Reminder reminder);
 
     @Delete

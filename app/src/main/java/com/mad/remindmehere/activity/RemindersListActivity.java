@@ -38,7 +38,6 @@ public class RemindersListActivity extends AppCompatActivity {
     private ArrayList<Reminder> mRemindersSearch;
     private EditText mSearchViewEt;
     private ReminderDatabase mReminderDatabase;
-    private static final String DATABASE_NAME = "reminders_db";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +71,7 @@ public class RemindersListActivity extends AppCompatActivity {
     }
 
     private void initialiseDatabase() {
-        mReminderDatabase = Room.databaseBuilder(getApplicationContext(), ReminderDatabase.class, DATABASE_NAME).fallbackToDestructiveMigration().build();
+        mReminderDatabase = ReminderDatabase.getReminderDatabase(getApplicationContext());
     }
 
     private void getReminders() {
@@ -171,6 +170,7 @@ public class RemindersListActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<Reminder> reminders) {
             super.onPostExecute(reminders);
+            mReminders = reminders;
             populateRecyclerView();
         }
     }
