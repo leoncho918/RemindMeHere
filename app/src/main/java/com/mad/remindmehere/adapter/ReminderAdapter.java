@@ -76,6 +76,12 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHo
         return mReminders.size();
     }
 
+    public void removeReminder(int position) {
+        mReminders.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, mReminders.size());
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private TextView mReminderName;

@@ -148,11 +148,12 @@ public class SelectLocationMapsActivity extends AppCompatActivity implements OnM
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         //If permission denied create dialog to tell user why permission is needed
         if (!(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+            RemindersMapsActivity.createLocationDialog(SelectLocationMapsActivity.this, SelectLocationMapsActivity.this);
         }
         //else enable location ui
         else {
             mLocationPermissionGranted = true;
-            getDeviceLocation(false, true);
+            getDeviceLocation(true, true);
             updateLocationUI();
         }
     }

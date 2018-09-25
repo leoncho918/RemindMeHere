@@ -190,9 +190,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         }
         else {
             mLocationPermissionGranted = true;
-        }
-        if (mLocationPermissionGranted) {
-            getDeviceLocation();
+            getDeviceLocation(false);
         }
     }
 
@@ -207,7 +205,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         //else enable location ui
         else {
             mLocationPermissionGranted = true;
-            getDeviceLocation();
+            getDeviceLocation(true);
             updateUi();
         }
     }
@@ -242,7 +240,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         mCircle = mMap.addCircle(circleOptions);
     }
 
-    private void getDeviceLocation() {
+    private void getDeviceLocation(final boolean isAnimated) {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         try {
             if (mLocationPermissionGranted) {
@@ -253,7 +251,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
                         if (task.isSuccessful()) {
                             mLastKnownLocation = (Location) task.getResult();
                             mLatLng = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
-                            moveCamera(mLatLng, false, true);
+                            moveCamera(mLatLng, isAnimated, true);
                             updateUi();
                             mAddressTv.setText(getAddress(mLatLng, getApplicationContext()));
                         }

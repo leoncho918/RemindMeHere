@@ -28,7 +28,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.mad.remindmehere.R;
 import com.mad.remindmehere.adapter.ReminderAdapter;
 import com.mad.remindmehere.database.ReminderDatabase;
-import com.mad.remindmehere.helper.RecyclerItemTouchHelper;
 import com.mad.remindmehere.model.Reminder;
 
 import java.util.ArrayList;
@@ -40,6 +39,7 @@ public class RemindersListActivity extends AppCompatActivity {
     private ArrayList<Reminder> mRemindersSearch;
     private EditText mSearchViewEt;
     private ReminderDatabase mReminderDatabase;
+    private ReminderAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,9 +75,26 @@ public class RemindersListActivity extends AppCompatActivity {
     }
 
     private void startItemTouchHelper() {
-        RecyclerItemTouchHelper itemTouchHelper = new RecyclerItemTouchHelper();
-        ItemTouchHelper touchHelper = new ItemTouchHelper(itemTouchHelper);
-        touchHelper.attachToRecyclerView(mRecyclerView);
+        ItemTouchHelper.SimpleCallback touchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                final int position = viewHolder.getAdapterPosition();
+                if (direction == ItemTouchHelper.RIGHT) {
+                    DeleteRemindersAsyncTask task = new DeleteRemindersAsyncTask();
+                    task.execute(position);
+                }
+                if (direction == ItemTouchHelper.LEFT) {
+
+                }
+            }
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(touchCallback);
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
     }
 
     private void initialiseDatabase() {
@@ -140,16 +157,21 @@ public class RemindersListActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                ArrayList<Reminder> resultList = new ArrayList<Reminder>();
-                for (Reminder reminder : mReminders) {
-                    String sName = s.toString().toLowerCase();
-                    String rName = reminder.getName().toLowerCase();
-                    if (rName.contains(sName)) {
-                        resultList.add(reminder);
+                if (count > 0) {
+                    ArrayList<Reminder> resultList = new ArrayList<Reminder>();
+                    for (Reminder reminder : mReminders) {
+                        String sName = s.toString().toLowerCase();
+                        String rName = reminder.getName().toLowerCase();
+                        if (rName.contains(sName)) {
+                            resultList.add(reminder);
+                        }
                     }
+                    mRemindersSearch = resultList;
+                    changeList();
                 }
-                mRemindersSearch = resultList;
-                changeList();
+                else {
+                    populateRecyclerView();
+                }
             }
 
             @Override
@@ -160,13 +182,13 @@ public class RemindersListActivity extends AppCompatActivity {
     }
 
     private void changeList() {
-        ReminderAdapter adapter = new ReminderAdapter(getApplicationContext(), mRemindersSearch, this);
-        mRecyclerView.setAdapter(adapter);
+        mAdapter = new ReminderAdapter(getApplicationContext(), mRemindersSearch, this);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     private void populateRecyclerView() {
-        ReminderAdapter adapter = new ReminderAdapter(getApplicationContext(), mReminders, this);
-        mRecyclerView.setAdapter(adapter);
+        mAdapter = new ReminderAdapter(getApplicationContext(), mReminders, this);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     private class RefreshRemindersAsyncTask extends AsyncTask<Void, Void, ArrayList<Reminder>> {
@@ -182,6 +204,20 @@ public class RemindersListActivity extends AppCompatActivity {
             super.onPostExecute(reminders);
             mReminders = reminders;
             populateRecyclerView();
+        }
+    }
+
+    private class DeleteRemindersAsyncTask extends AsyncTask<Integer, Void, Integer> {
+        @Override
+        protected Integer doInBackground(Integer... integers) {
+            mReminderDatabase.reminderDao().deleteReminder(mReminders.get(integers[0]));
+            return integers[0];
+        }
+
+        @Override
+        protected void onPostExecute(Integer i) {
+            super.onPostExecute(i);
+            mAdapter.removeReminder(i);
         }
     }
 }

@@ -105,6 +105,8 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        initialiseDatabase();
     }
 
 
@@ -130,11 +132,13 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
 
         getDeviceLocation(false, true);
 
-        initialiseDatabase();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         getReminders();
-
-        populateRemindersOnMap();
     }
 
     private void initialiseDatabase() {
@@ -147,6 +151,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     }
 
     private void populateRemindersOnMap() {
+        mMap.clear();
         for (Reminder r : mReminders) {
             MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(r.getLat(), r.getLng())).title(r.getName()).snippet(r.getDescription()).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_reminder_marker));
             mMap.addMarker(markerOptions);
