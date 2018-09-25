@@ -1,6 +1,7 @@
 package com.mad.remindmehere.activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -146,8 +147,8 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         mCircle = mMap.addCircle(circleOptions);
     }
 
-    private String getAddress(LatLng latLng) {
-        Geocoder geocoder = new Geocoder(this);
+    public static String getAddress(LatLng latLng, Context context) {
+        Geocoder geocoder = new Geocoder(context);
         String lastAddress = "Couldn't get Address";
         try {
             List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
@@ -234,6 +235,8 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
                 mMap.getUiSettings().setZoomControlsEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
                 mMap.getUiSettings().setMapToolbarEnabled(false);
+                mMap.getUiSettings().setTiltGesturesEnabled(false);
+                mMap.getUiSettings().setRotateGesturesEnabled(false);
             }
         }
         catch (SecurityException e) {
@@ -264,7 +267,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
                             mLatLng = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
                             moveCamera(mLatLng, false, true);
                             updateUi();
-                            mAddressTv.setText(getAddress(mLatLng));
+                            mAddressTv.setText(getAddress(mLatLng, getApplicationContext()));
                         }
                         else {
                             Toast.makeText(AddReminderActivity.this, R.string.toast_location_unavailable, Toast.LENGTH_SHORT).show();
@@ -307,7 +310,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
                 addMarker(mLatLng);
                 addCircle(mLatLng);
                 moveCamera(mLatLng, false, true);
-                mAddressTv.setText(getAddress(mLatLng));
+                mAddressTv.setText(getAddress(mLatLng, getApplicationContext()));
             }
         }
     }

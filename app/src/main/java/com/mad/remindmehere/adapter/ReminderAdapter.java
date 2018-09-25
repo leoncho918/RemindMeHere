@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.mad.remindmehere.activity.AddReminderActivity;
 import com.mad.remindmehere.activity.RemindersMapsActivity;
 import com.mad.remindmehere.model.Reminder;
 import com.mad.remindmehere.R;
@@ -50,25 +51,10 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHo
         return  mViewHolder;
     }
 
-    private String getAddress(LatLng latLng) {
-        Geocoder geocoder = new Geocoder(mContext);
-        String lastAddress = "Couldn't get Address";
-        try {
-            List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-            if (addresses.size() > 0) {
-                Address address = addresses.get(0);
-                lastAddress = address.getAddressLine(0);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return lastAddress;
-    }
-
     @Override
     public void onBindViewHolder(@NonNull ReminderAdapter.ViewHolder holder, final int position) {
         holder.mReminderName.setText(mReminders.get(position).getName());
-        holder.mReminderAddress.setText(getAddress(new LatLng(mReminders.get(position).getLat(), mReminders.get(position).getLng())));
+        holder.mReminderAddress.setText(AddReminderActivity.getAddress(new LatLng(mReminders.get(position).getLat(), mReminders.get(position).getLng()), mContext));
         holder.mReminderRadius.setText(mContext.getResources().getString(R.string.reminder_item_radius) + mReminders.get(position).getRadius());
 
         holder.mReminderLayout.setOnClickListener(new View.OnClickListener() {
