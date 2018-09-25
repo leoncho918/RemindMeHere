@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/AppTheme"
+    tools:context=".activity.AddReminderActivity">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:popupTheme="@style/PopupOverlay"
+            android:background="@color/colorPrimary"/>
+
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_margin="16dp"
+            tools:context=".activity.AddReminderActivity" />
+
+        <TextView
+            android:id="@+id/location_Tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            android:textAlignment="center"
+            android:layout_weight="1"/>
+
+        <EditText
+            android:id="@+id/name_Et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            android:textAlignment="center"
+            android:hint="@string/reminder_name"
+            android:layout_weight="1"
+            android:singleLine="true"/>
+
+        <EditText
+            android:id="@+id/desc_Et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            android:textAlignment="center"
+            android:hint="@string/reminder_description"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/select_location_btn"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_add_location"
+            android:text="@string/menu_edit_location"
+            android:textColor="@color/black"
+            android:layout_gravity="center"
+            android:onClick="changeLocation"
+            android:layout_weight="0"/>
+
+        <android.support.v7.widget.AppCompatSeekBar
+            android:id="@+id/radius_Sb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
+            android:min="10"
+            android:max="100"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/addReminder_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_margin="@dimen/fab_margin"
+            android:src="@drawable/ic_add"
+            app:backgroundTint="@color/colorPrimary"
+            app:rippleColor="@color/colorPrimaryDark"
+            android:onClick="addReminder"
+            android:layout_weight="0"/>
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

@@ -55,8 +55,6 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     public static final String TAG = "MAD";
     public static final int MAP_ZOOM = 16;
-    public static final String LATITUDE = "com.mad.remindmehere.LATITUDE";
-    public static final String LONGITUTE = "com.mad.remindmehere.LONGITUDE";
     public static final double DEFAULT_LAT = 37.422;
     public static final double DEFAULT_LNG = -122.084;
     public static final int ADD_REMINDER = 1;
@@ -105,8 +103,6 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        initialiseDatabase();
     }
 
 
@@ -137,6 +133,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     @Override
     protected void onResume() {
         super.onResume();
+        initialiseDatabase();
 
         getReminders();
     }
@@ -307,14 +304,8 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         if (requestCode == ADD_REMINDER) {
             if (resultCode == ADD_REMINDER) {
                 LatLng latLng = new LatLng(data.getDoubleExtra(AddReminderActivity.LAT, DEFAULT_LAT), data.getDoubleExtra(AddReminderActivity.LNG, DEFAULT_LNG));
-                newReminder.setName(data.getStringExtra(AddReminderActivity.NAME));
-                newReminder.setDescription(data.getStringExtra(AddReminderActivity.DESCRIPTION));
                 newReminder.setLat(data.getDoubleExtra(AddReminderActivity.LAT, DEFAULT_LAT));
                 newReminder.setLng(data.getDoubleExtra(AddReminderActivity.LNG, DEFAULT_LNG));
-                newReminder.setRadius(data.getIntExtra(AddReminderActivity.RADIUS, 1));
-                mReminders.add(newReminder);
-                AddRemindersAsyncTask task = new AddRemindersAsyncTask();
-                task.execute(newReminder);
                 mMap.clear();
                 moveCamera(latLng, true, true);
                 populateRemindersOnMap();
@@ -340,20 +331,6 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         protected void onPostExecute(ArrayList<Reminder> reminders) {
             super.onPostExecute(reminders);
             mReminders = reminders;
-            populateRemindersOnMap();
-        }
-    }
-
-    private class AddRemindersAsyncTask extends AsyncTask<Reminder, Void, Void> {
-        @Override
-        protected Void doInBackground(Reminder... reminders) {
-            mReminderDatabase.reminderDao().addReminder(reminders[0]);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
             populateRemindersOnMap();
         }
     }

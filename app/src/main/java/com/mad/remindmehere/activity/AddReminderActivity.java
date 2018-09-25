@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -41,6 +42,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.mad.remindmehere.R;
+import com.mad.remindmehere.database.ReminderDatabase;
 import com.mad.remindmehere.model.Reminder;
 
 import java.io.IOException;
@@ -61,13 +63,11 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
     private int mRadius;
     private boolean mNameSet;
     private Circle mCircle;
-    public static final String NAME = "com.mad.RemindMeHere.NAME";
-    public static final String DESCRIPTION = "com.mad.RemindMeHere.DESCRIPTION";
     public static final String LAT = "com.mad.RemindMeHere.LAT";
     public static final String LNG = "com.mad.RemindMeHere.LNG";
-    public static final String RADIUS = "com.mad.RemindMeHere.RADIUS";
     public static final int ADD_REMINDER_ZOOM = 18;
     public static final int SELECT_LOCATION_RESULT = 2;
+    private ReminderDatabase mReminderDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +137,12 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
 
             }
         });
+
+        initialiseDatabase();
+    }
+
+    private void initialiseDatabase() {
+        mReminderDatabase = ReminderDatabase.getReminderDatabase(getApplicationContext());
     }
 
     private void updateCircle() {
@@ -166,13 +172,20 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         if (mNameSet) {
             double lat = mLatLng.latitude;
             double lng = mLatLng.longitude;
+
+            Reminder newReminder = new Reminder();
+            newReminder.setName(mNameEt.getText().toString());
+            newReminder.setDescription(mDescEt.getText().toString());
+            newReminder.setLat(lat);
+            newReminder.setLng(lng);
+            newReminder.setRadius(mRadius);
+
+            AddRemindersAsyncTask task = new AddRemindersAsyncTask();
+            task.execute(newReminder);
+
             Intent resultIntent = new Intent();
-            resultIntent.putExtra(NAME, mNameEt.getText().toString());
-            resultIntent.putExtra(DESCRIPTION, mDescEt.getText().toString());
             resultIntent.putExtra(LAT, lat);
             resultIntent.putExtra(LNG, lng);
-            resultIntent.putExtra(RADIUS, mRadius);
-
             setResult(RemindersMapsActivity.ADD_REMINDER, resultIntent);
             finish();
         }
@@ -298,6 +311,19 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
                 moveCamera(mLatLng, false, true);
                 mAddressTv.setText(getAddress(mLatLng, getApplicationContext()));
             }
+        }
+    }
+
+    private class AddRemindersAsyncTask extends AsyncTask<Reminder, Void, Void> {
+        @Override
+        protected Void doInBackground(Reminder... reminders) {
+            mReminderDatabase.reminderDao().addReminder(reminders[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
         }
     }
 }
