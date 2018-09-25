@@ -1,6 +1,5 @@
 package com.mad.remindmehere.activity;
 
-import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -24,7 +23,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.mad.remindmehere.R;
 import com.mad.remindmehere.adapter.ReminderAdapter;
 import com.mad.remindmehere.database.ReminderDatabase;
@@ -36,10 +34,15 @@ public class RemindersListActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     private ArrayList<Reminder> mReminders = new ArrayList<Reminder>();
-    private ArrayList<Reminder> mRemindersSearch;
+    private ArrayList<Reminder> mRemindersList;
     private EditText mSearchViewEt;
     private ReminderDatabase mReminderDatabase;
     private ReminderAdapter mAdapter;
+    public static final String NAME = "com.mad.remindmehere.RemindersListActivity.NAME";
+    public static final String DESC = "com.mad.remindmehere.RemindersListActivity.DESC";
+    public static final String LAT = "com.mad.remindmehere.RemindersListActivity.LAT";
+    public static final String LNG = "com.mad.remindmehere.RemindersListActivity.LNG";
+    public static final String RADIUS = "com.mad.remindmehere.RemindersListActivity.RADIUS";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,10 +71,6 @@ public class RemindersListActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(linearLayoutManager);
 
         startItemTouchHelper();
-
-        initialiseDatabase();
-
-        getReminders();
     }
 
     private void startItemTouchHelper() {
@@ -89,12 +88,28 @@ public class RemindersListActivity extends AppCompatActivity {
                     task.execute(position);
                 }
                 if (direction == ItemTouchHelper.LEFT) {
-
+                    Reminder selectedReminder = mRemindersList.get(position);
+                    Intent intent = new Intent(RemindersListActivity.this, EditRemindersActivity.class);
+                    intent.putExtra(NAME, selectedReminder.getName());
+                    intent.putExtra(DESC, selectedReminder.getDescription());
+                    intent.putExtra(LAT, selectedReminder.getLat());
+                    intent.putExtra(LNG, selectedReminder.getLng());
+                    intent.putExtra(RADIUS, selectedReminder.getRadius());
+                    startActivity(intent);
                 }
             }
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(touchCallback);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        initialiseDatabase();
+
+        getReminders();
     }
 
     private void initialiseDatabase() {
@@ -157,21 +172,16 @@ public class RemindersListActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (count > 0) {
-                    ArrayList<Reminder> resultList = new ArrayList<Reminder>();
-                    for (Reminder reminder : mReminders) {
-                        String sName = s.toString().toLowerCase();
-                        String rName = reminder.getName().toLowerCase();
-                        if (rName.contains(sName)) {
-                            resultList.add(reminder);
-                        }
+                ArrayList<Reminder> resultList = new ArrayList<Reminder>();
+                for (Reminder reminder : mReminders) {
+                    String sName = s.toString().toLowerCase();
+                    String rName = reminder.getName().toLowerCase();
+                    if (rName.contains(sName)) {
+                        resultList.add(reminder);
                     }
-                    mRemindersSearch = resultList;
-                    changeList();
                 }
-                else {
-                    populateRecyclerView();
-                }
+                mRemindersList = resultList;
+                populateRecyclerView();
             }
 
             @Override
@@ -181,13 +191,8 @@ public class RemindersListActivity extends AppCompatActivity {
         });
     }
 
-    private void changeList() {
-        mAdapter = new ReminderAdapter(getApplicationContext(), mRemindersSearch, this);
-        mRecyclerView.setAdapter(mAdapter);
-    }
-
     private void populateRecyclerView() {
-        mAdapter = new ReminderAdapter(getApplicationContext(), mReminders, this);
+        mAdapter = new ReminderAdapter(getApplicationContext(), mRemindersList, this);
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -203,6 +208,7 @@ public class RemindersListActivity extends AppCompatActivity {
         protected void onPostExecute(ArrayList<Reminder> reminders) {
             super.onPostExecute(reminders);
             mReminders = reminders;
+            mRemindersList = reminders;
             populateRecyclerView();
         }
     }
@@ -210,14 +216,16 @@ public class RemindersListActivity extends AppCompatActivity {
     private class DeleteRemindersAsyncTask extends AsyncTask<Integer, Void, Integer> {
         @Override
         protected Integer doInBackground(Integer... integers) {
-            mReminderDatabase.reminderDao().deleteReminder(mReminders.get(integers[0]));
+            mReminderDatabase.reminderDao().deleteReminder(mRemindersList.get(integers[0]));
             return integers[0];
         }
 
         @Override
         protected void onPostExecute(Integer i) {
             super.onPostExecute(i);
+            Reminder deletedReminder = mRemindersList.get(i);
             mAdapter.removeReminder(i);
+            mReminders.remove(deletedReminder);
         }
     }
 }

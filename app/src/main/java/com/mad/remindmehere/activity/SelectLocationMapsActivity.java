@@ -36,15 +36,18 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.mad.remindmehere.R;
+import com.mad.remindmehere.model.Reminder;
 
 public class SelectLocationMapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
 
     private GoogleMap mMap;
+    private LatLng mLatLng;
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private LatLng mReminderLatLng;
     private boolean markerSet = false;
+    private boolean firstRun = true;
     public static final String MARKER_LAT = "com.mad.remindmehere.MARKER_LAT";
     public static final String MARKER_LGN = "com.mad.remindmehere.MARKER_LNG";
     public static final int PLACE_AUTOCOMPLETE_REQUESTCODE = 4;
@@ -72,6 +75,13 @@ public class SelectLocationMapsActivity extends AppCompatActivity implements OnM
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        Intent intent = getIntent();
+        double lat = intent.getDoubleExtra(AddReminderActivity.LAT, RemindersMapsActivity.DEFAULT_LAT);
+        double lng = intent.getDoubleExtra(AddReminderActivity.LNG, RemindersMapsActivity.DEFAULT_LNG);
+        if (lat != RemindersMapsActivity.DEFAULT_LAT && lng != RemindersMapsActivity.DEFAULT_LNG) {
+            mLatLng = new LatLng(lat, lng);
+        }
     }
 
 
@@ -188,7 +198,14 @@ public class SelectLocationMapsActivity extends AppCompatActivity implements OnM
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()) {
                             mLastKnownLocation = (Location) task.getResult();
-                            moveCamera(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), isAnimated, moveCamera);
+                            if (mLatLng == null || !firstRun) {
+                                moveCamera(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), isAnimated, moveCamera);
+                            }
+                            else {
+                                moveCamera(mLatLng, false, true);
+                                addMarker(mLatLng);
+                                firstRun = false;
+                            }
                         }
                         else {
                             Toast.makeText(SelectLocationMapsActivity.this, R.string.toast_location_unavailable, Toast.LENGTH_SHORT).show();

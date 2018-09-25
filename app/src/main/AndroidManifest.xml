@@ -29,9 +29,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".activity.RemindersMapsActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden">
+        <activity
+            android:name=".activity.RemindersMapsActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -45,27 +46,29 @@
 
         <activity
             android:name=".activity.AddReminderActivity"
+            android:configChanges="orientation|keyboardHidden"
             android:label="@string/title_activity_add_reminder"
             android:parentActivityName=".activity.RemindersMapsActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden">
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mad.remindmehere.activity.RemindersMapsActivity" />
         </activity>
         <activity
             android:name=".activity.SelectLocationMapsActivity"
+            android:configChanges="orientation|keyboardHidden"
             android:label="@string/title_activity_select_location_maps"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden">
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mad.remindmehere.activity.AddReminderActivity" />
         </activity>
-        <activity android:name=".activity.RemindersListActivity"
-            android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden"></activity>
+        <activity
+            android:name=".activity.RemindersListActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait" />
+        <activity android:name=".activity.EditRemindersActivity"></activity>
     </application>
 
 </manifest>
