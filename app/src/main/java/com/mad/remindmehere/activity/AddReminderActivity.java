@@ -106,7 +106,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (count == 0) {
+                if (s.length() == 0) {
                     mNameSet = false;
                 }
                 else {
@@ -319,11 +319,6 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         protected Void doInBackground(Reminder... reminders) {
             mReminderDatabase.reminderDao().addReminder(reminders[0]);
             return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
         }
     }
 }

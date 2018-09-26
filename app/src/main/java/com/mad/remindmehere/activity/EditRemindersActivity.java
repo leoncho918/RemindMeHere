@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -35,6 +36,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.mad.remindmehere.R;
+import com.mad.remindmehere.database.ReminderDatabase;
+import com.mad.remindmehere.model.Reminder;
 
 public class EditRemindersActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -46,17 +49,20 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
     private AppCompatSeekBar mSeekBar;
     private FloatingActionButton mAddFab;
     private Circle mCircle;
+    private ReminderDatabase mReminderDatabase;
 
     private String mName;
     private String mDesc;
     private double mLat;
     private double mLng;
     private int mRadius;
+    private int mPosition;
     private boolean mLocationPermissionGranted;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private Location mLastKnownLocation;
 
     public static final int DEFAULT_RADIUS = 10;
+    public static final int DEFAULT_POSITION = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +108,7 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         mLat = intent.getDoubleExtra(RemindersListActivity.LAT, RemindersMapsActivity.DEFAULT_LAT);
         mLng = intent.getDoubleExtra(RemindersListActivity.LNG, RemindersMapsActivity.DEFAULT_LNG);
         mRadius = intent.getIntExtra(RemindersListActivity.RADIUS, DEFAULT_RADIUS);
+        mPosition = intent.getIntExtra(RemindersListActivity.POSITION, DEFAULT_POSITION);
     }
 
     private void fillData() {
@@ -130,6 +137,17 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
 
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        initialiseDatabase();
+    }
+
+    private void initialiseDatabase() {
+        mReminderDatabase = ReminderDatabase.getReminderDatabase(getApplicationContext());
     }
 
     @Override
@@ -203,7 +221,27 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
     }
 
     public void editReminder(View view) {
+        mName = mNameEt.getText().toString();
+        mDesc = mDescEt.getText().toString();
+        mRadius = mSeekBar.getProgress();
+        mLat = mLatLng.latitude;
+        mLng = mLatLng.longitude;
 
+        Reminder updatedReminder = new Reminder();
+        updatedReminder.setName(mName);
+        updatedReminder.setDescription(mDesc);
+        updatedReminder.setLat(mLat);
+        updatedReminder.setLng(mLng);
+        updatedReminder.setRadius(mRadius);
+
+        AddRemindersAsyncTask task = new AddRemindersAsyncTask();
+        task.execute(updatedReminder);
+
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra(RemindersListActivity.POSITION, mPosition);
+        setResult(RemindersListActivity.UPDATE_REMINDER, resultIntent);
+
+        finish();
     }
 
     @Override
@@ -220,6 +258,14 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
                 moveCamera(mLatLng, false, true);
                 mAddressTv.setText(AddReminderActivity.getAddress(mLatLng, getApplicationContext()));
             }
+        }
+    }
+
+    private class AddRemindersAsyncTask extends AsyncTask<Reminder, Void, Void> {
+        @Override
+        protected Void doInBackground(Reminder... reminders) {
+            mReminderDatabase.reminderDao().addReminder(reminders[0]);
+            return null;
         }
     }
 }

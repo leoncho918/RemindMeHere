@@ -52,6 +52,8 @@ public class RemindersListActivity extends AppCompatActivity {
     public static final String LAT = "com.mad.remindmehere.RemindersListActivity.LAT";
     public static final String LNG = "com.mad.remindmehere.RemindersListActivity.LNG";
     public static final String RADIUS = "com.mad.remindmehere.RemindersListActivity.RADIUS";
+    public static final String POSITION = "com.mad.remindmehere.RemindersListActivity.POSITION";
+    public static final int UPDATE_REMINDER = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +106,8 @@ public class RemindersListActivity extends AppCompatActivity {
                     intent.putExtra(LAT, selectedReminder.getLat());
                     intent.putExtra(LNG, selectedReminder.getLng());
                     intent.putExtra(RADIUS, selectedReminder.getRadius());
-                    startActivity(intent);
+                    intent.putExtra(POSITION, position);
+                    startActivityForResult(intent, UPDATE_REMINDER);
                 }
             }
 
@@ -120,10 +123,6 @@ public class RemindersListActivity extends AppCompatActivity {
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(touchCallback);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
-    }
-
-    private int convertDpToPx(int dp) {
-        return Math.round(dp * (getResources().getDisplayMetrics().xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
     @Override
@@ -217,6 +216,18 @@ public class RemindersListActivity extends AppCompatActivity {
     private void populateRecyclerView() {
         mAdapter = new ReminderAdapter(getApplicationContext(), mRemindersList, this);
         mRecyclerView.setAdapter(mAdapter);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == UPDATE_REMINDER) {
+            if (resultCode == UPDATE_REMINDER) {
+                int pos = data.getIntExtra(POSITION, EditRemindersActivity.DEFAULT_POSITION);
+                DeleteRemindersAsyncTask task = new DeleteRemindersAsyncTask();
+                task.execute(pos);
+            }
+        }
     }
 
     private class RefreshRemindersAsyncTask extends AsyncTask<Void, Void, ArrayList<Reminder>> {
