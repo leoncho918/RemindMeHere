@@ -6,4 +6,6 @@
     <color name="searchWhite">#FFFFFF</color>
     <color name="colorCircleFill">#4b1de9b6</color>
     <color name="black">#000000</color>
+    <color name="delete">#ff3c3c</color>
+    <color name="edit">#ffdd00</color>
 </resources>

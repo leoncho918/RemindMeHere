@@ -84,10 +84,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="right"
             android:layout_margin="@dimen/fab_margin"
-            android:src="@drawable/ic_add"
+            android:src="@drawable/ic_check"
             app:backgroundTint="@color/colorPrimary"
             app:rippleColor="@color/colorPrimaryDark"
-            android:onClick="addReminder"
+            android:onClick="editReminder"
             android:layout_weight="0"/>
     </LinearLayout>
 

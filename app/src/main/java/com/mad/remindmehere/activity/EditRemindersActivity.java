@@ -202,6 +202,10 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         startActivityForResult(intent, AddReminderActivity.SELECT_LOCATION_RESULT);
     }
 
+    public void editReminder(View view) {
+
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
