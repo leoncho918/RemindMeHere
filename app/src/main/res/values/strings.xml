@@ -25,4 +25,8 @@
     <string name="reminder_item_radius">Radius:\u0020</string>
     <string name="place_selection">Place:\u0020</string>
     <string name="place_selection_error">An error occurred:\u0020</string>
+    <string name="geofence_success">Reminder geofences registered successfully.</string>
+    <string name="geofence_fail">Failed to register reminder geofences.</string>
+    <string name="geofence_enter">Entering:\u0020</string>
+    <string name="geofence_triggered">Reminder Here</string>
 </resources>

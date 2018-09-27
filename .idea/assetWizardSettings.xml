@@ -110,7 +110,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/image/ic_edit_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/E:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/social/ic_notifications_active_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -120,7 +120,8 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_edit" />
+                            <entry key="color" value="1de9b6" />
+                            <entry key="outputName" value="ic_remind_notification" />
                             <entry key="sourceFile" value="C:\Users\leonc" />
                           </map>
                         </option>
