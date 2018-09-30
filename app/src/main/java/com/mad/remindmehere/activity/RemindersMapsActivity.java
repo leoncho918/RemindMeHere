@@ -3,6 +3,10 @@ package com.mad.remindmehere.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,6 +19,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
@@ -279,6 +284,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         if (!(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
             getDeviceLocation(true, true);
             updateLocationUI();
+            notificationBuilder();
         }
     }
 
@@ -317,6 +323,24 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
                 moveCamera(latLng, true, true);
             }
         }
+    }
+
+    public void  notificationBuilder() {
+        int notifyId = 1;
+        String CHANNEL_ID = "Reminder";
+        String name = "Reminders";
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+        Notification notification = new Notification.Builder(RemindersMapsActivity.this)
+                .setSmallIcon(R.drawable.ic_remind_notification)
+                .setContentText("Reminder")
+                .setContentText("You have a new reminder")
+                .setChannelId(CHANNEL_ID)
+                .setColor(getColor(R.color.colorPrimary))
+                .build();
+        NotificationManager mManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mManager.createNotificationChannel(mChannel);
+        mManager.notify(notifyId, notification);
     }
 
     private class RefreshRemindersAsyncTask extends AsyncTask<Void, Void, ArrayList<Reminder>> {
