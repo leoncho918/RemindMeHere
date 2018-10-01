@@ -41,12 +41,12 @@ public class GeofenceTransitionsIntentService extends IntentService {
         }
 
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
-        Log.e(TAG, "Geofence Triggered");
+        Log.d(TAG, "Geofence Triggered");
 
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
             List<Geofence> triggeredGeofences = geofencingEvent.getTriggeringGeofences();
 
-            sendNotification();
+            sendNotification(Integer.parseInt(triggeredGeofences.get(0).getRequestId()));
         }
     }
 
@@ -63,15 +63,15 @@ public class GeofenceTransitionsIntentService extends IntentService {
         }
     }
 
-    public void sendNotification() {
+    public void sendNotification(int id) {
         Intent notificationIntent = new Intent(getApplicationContext(), RemindersMapsActivity.class);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_remind_notification)
                 .setContentTitle("Reminder")
                 .setContentText("You have a new reminder")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setPriority(NotificationCompat.PRIORITY_MAX);
 
         NotificationManagerCompat managerCompat = NotificationManagerCompat.from(this);
-        managerCompat.notify(0, mBuilder.build());
+        managerCompat.notify(id, mBuilder.build());
     }
 }

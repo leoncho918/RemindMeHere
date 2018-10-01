@@ -43,6 +43,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.mad.remindmehere.R;
 import com.mad.remindmehere.database.ReminderDatabase;
+import com.mad.remindmehere.geofence.Geofencing;
 import com.mad.remindmehere.model.Reminder;
 
 import java.io.IOException;

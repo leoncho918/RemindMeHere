@@ -33,6 +33,7 @@ import android.widget.LinearLayout;
 import com.mad.remindmehere.R;
 import com.mad.remindmehere.adapter.ReminderAdapter;
 import com.mad.remindmehere.database.ReminderDatabase;
+import com.mad.remindmehere.geofence.Geofencing;
 import com.mad.remindmehere.model.Reminder;
 
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ public class RemindersListActivity extends AppCompatActivity {
     public static final String RADIUS = "com.mad.remindmehere.RemindersListActivity.RADIUS";
     public static final String POSITION = "com.mad.remindmehere.RemindersListActivity.POSITION";
     public static final int UPDATE_REMINDER = 5;
+    private Geofencing mGeofencing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +84,8 @@ public class RemindersListActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(linearLayoutManager);
 
         startItemTouchHelper();
+
+        initaliseGeofencer();
     }
 
     private void startItemTouchHelper() {
@@ -123,6 +127,10 @@ public class RemindersListActivity extends AppCompatActivity {
         };
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(touchCallback);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
+    }
+
+    private void initaliseGeofencer() {
+        mGeofencing = new Geofencing(getApplicationContext());
     }
 
     @Override
@@ -244,6 +252,9 @@ public class RemindersListActivity extends AppCompatActivity {
             mReminders = reminders;
             mRemindersList = reminders;
             populateRecyclerView();
+            mGeofencing.unRegisterGeofences();
+            mGeofencing.updateGeofences(reminders);
+            mGeofencing.registerGeofences();
         }
     }
 
