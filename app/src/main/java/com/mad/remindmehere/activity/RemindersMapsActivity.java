@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
@@ -46,11 +47,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.mad.remindmehere.Geofencing;
 import com.mad.remindmehere.R;
 import com.mad.remindmehere.adapter.InfoWindowAdapter;
 import com.mad.remindmehere.adapter.ReminderAdapter;
 import com.mad.remindmehere.database.ReminderDatabase;
 import com.mad.remindmehere.model.Reminder;
+import com.mad.remindmehere.service.GeofenceTransitionsIntentService;
 
 import java.util.ArrayList;
 
@@ -70,6 +73,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     private DrawerLayout mDrawerLayout;
     private ArrayList<Reminder> mReminders = new ArrayList<Reminder>();
     private ReminderDatabase mReminderDatabase;
+    private Geofencing mGeofencing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,6 +145,8 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         initialiseDatabase();
 
         getReminders();
+
+        initialiseGeofencer();
     }
 
     private void initialiseDatabase() {
@@ -150,6 +156,10 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     private void getReminders() {
         RefreshRemindersAsyncTask task = new RefreshRemindersAsyncTask();
         task.execute();
+    }
+
+    private void initialiseGeofencer() {
+        mGeofencing = new Geofencing(getApplicationContext());
     }
 
     private void populateRemindersOnMap() {
@@ -284,7 +294,6 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         if (!(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
             getDeviceLocation(true, true);
             updateLocationUI();
-            notificationBuilder();
         }
     }
 
@@ -306,15 +315,12 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Reminder newReminder = new Reminder();
         if (requestCode == ADD_REMINDER) {
             if (resultCode == ADD_REMINDER) {
                 LatLng latLng = new LatLng(data.getDoubleExtra(AddReminderActivity.LAT, DEFAULT_LAT), data.getDoubleExtra(AddReminderActivity.LNG, DEFAULT_LNG));
-                newReminder.setLat(data.getDoubleExtra(AddReminderActivity.LAT, DEFAULT_LAT));
-                newReminder.setLng(data.getDoubleExtra(AddReminderActivity.LNG, DEFAULT_LNG));
-                mMap.clear();
+                RefreshRemindersAsyncTask task = new RefreshRemindersAsyncTask();
+                task.execute();
                 moveCamera(latLng, true, true);
-                populateRemindersOnMap();
             }
         }
         if (requestCode == LIST_REMINDER) {
@@ -325,22 +331,20 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    public void  notificationBuilder() {
-        int notifyId = 1;
-        String CHANNEL_ID = "Reminder";
-        String name = "Reminders";
-        int importance = NotificationManager.IMPORTANCE_HIGH;
-        NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
-        Notification notification = new Notification.Builder(RemindersMapsActivity.this)
-                .setSmallIcon(R.drawable.ic_remind_notification)
-                .setContentText("Reminder")
-                .setContentText("You have a new reminder")
-                .setChannelId(CHANNEL_ID)
-                .setColor(getColor(R.color.colorPrimary))
-                .build();
-        NotificationManager mManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mManager.createNotificationChannel(mChannel);
-        mManager.notify(notifyId, notification);
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_desc);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(GeofenceTransitionsIntentService.CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     private class RefreshRemindersAsyncTask extends AsyncTask<Void, Void, ArrayList<Reminder>> {
@@ -356,6 +360,9 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
             super.onPostExecute(reminders);
             mReminders = reminders;
             populateRemindersOnMap();
+            mGeofencing.unRegisterGeofences();
+            mGeofencing.updateGeofences(reminders);
+            mGeofencing.registerGeofences();
         }
     }
 }
