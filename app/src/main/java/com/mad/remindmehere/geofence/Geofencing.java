@@ -1,4 +1,4 @@
-package com.mad.remindmehere;
+package com.mad.remindmehere.geofence;
 
 import android.app.PendingIntent;
 import android.content.Context;
