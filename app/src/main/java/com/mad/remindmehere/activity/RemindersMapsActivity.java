@@ -50,9 +50,24 @@ import com.mad.remindmehere.service.GeofenceTransitionsJobIntentService;
 
 import java.util.ArrayList;
 
+//This activity handles all the functions and behaviour in the actitivy that shows all reminders on a map
 public class RemindersMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    //Variables to store ui elements
     private GoogleMap mMap;
+    private DrawerLayout mDrawerLayout;
+
+    //Variables to store data
+    private static boolean mLocationPermissionGranted;
+    private Location mLastKnownLocation = null;
+    private ArrayList<Reminder> mReminders = new ArrayList<Reminder>();
+
+    //Variables to store objects
+    private ReminderDatabase mReminderDatabase;
+    private Geofencing mGeofencing;
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+
+    //Constants
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     public static final String TAG = "MAD";
     public static final int MAP_ZOOM = 16;
@@ -60,25 +75,27 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     public static final double DEFAULT_LNG = -122.084;
     public static final int ADD_REMINDER = 1;
     public static final int LIST_REMINDER = 3;
-    private static boolean mLocationPermissionGranted;
-    private Location mLastKnownLocation = null;
-    private FusedLocationProviderClient mFusedLocationProviderClient;
-    private DrawerLayout mDrawerLayout;
-    private ArrayList<Reminder> mReminders = new ArrayList<Reminder>();
-    private ReminderDatabase mReminderDatabase;
-    private Geofencing mGeofencing;
 
+    //Called when the activity is created
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Links xml layout to activity
         setContentView(R.layout.activity_reminders_maps);
+
+        //Set the statusbar colour if Android Version is Lollipop or higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             this.getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
         }
 
+        //Create navigation view to link to navigation view in menu resources
         NavigationView navigationView = findViewById(R.id.nav_view);
+
+        //Link DrawerLayout to one in xml layout
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
+        //On Click Listener for when Navigation item is selected
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -87,8 +104,11 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
                 //Close drawer when item is tapped
                 mDrawerLayout.closeDrawers();
 
+                //Checks what navigation item is selected
                 if (id == R.id.nav_reminders) {
+                    //Create a new intent to start ReminderListActivity
                     Intent intent = new Intent(RemindersMapsActivity.this, RemindersListActivity.class);
+                    //Start activity and wait for result
                     startActivityForResult(intent, LIST_REMINDER);
                 }
 
@@ -96,10 +116,15 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
             }
         });
 
+        //Linking toolbar from xml layout
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //Setting toolbar as the support action bar
         setSupportActionBar(toolbar);
+        //Linking support action bar in xml file with variable
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        //Enabling button to go back
         actionBar.setDisplayHomeAsUpEnabled(true);
+        //Changing icon for button to custom drawable
         actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -119,44 +144,60 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        //Set mMap as googleMap
         mMap = googleMap;
 
+        //Create an adapter for the info windows and set the adapter for the map
         InfoWindowAdapter adapter = new InfoWindowAdapter(this);
         mMap.setInfoWindowAdapter(adapter);
 
+        //Method call to get location permission
         getLocationPermission(RemindersMapsActivity.this, getApplicationContext());
 
+        //Method call to set up how the map fragment can be interacted with
         updateLocationUI();
 
+        //Method call to get device location
         getDeviceLocation(false, true);
 
     }
 
+    //Method called when activity starts/resumes
     @Override
     protected void onResume() {
         super.onResume();
+        //Calling method to start get instance of room database
         initialiseDatabase();
 
+        //Calling method to start async task to get reminders stored in database
         getReminders();
 
+        //Calling method to assign instance of geofencer
         initialiseGeofencer();
 
+        //Calling method to create notification channel
         createNotificationChannel();
     }
 
+    //Method to get an instance of room database
     private void initialiseDatabase() {
         mReminderDatabase = ReminderDatabase.getReminderDatabase(getApplicationContext());
     }
 
+    //Method to get reminders from database
     private void getReminders() {
+        //Create new RefreshRemindersAsyncTask
         RefreshRemindersAsyncTask task = new RefreshRemindersAsyncTask();
+        //Execute the task
         task.execute();
     }
 
+    //Method to create object of geofencer
     private void initialiseGeofencer() {
         mGeofencing = new Geofencing(getApplicationContext());
     }
 
+    //Method to populate all reminders and their geofence radius onto the map
     private void populateRemindersOnMap() {
         mMap.clear();
         for (Reminder r : mReminders) {
@@ -167,23 +208,25 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    /**
-     * Prompts the user for permission to use the device location.
-     */
+    //Prompts the user for permission to use the device location.
     public static void getLocationPermission(Activity activity, Context context) {
-         //Request location permission, so that app has the location of the device. The result of the permission request is handled by onRequestPermissionsResult.
+        //Request location permission, so that app has the location of the device. The result of the permission request is handled by onRequestPermissionsResult.
+        //Check if app has location permission
         if (ContextCompat.checkSelfPermission(context,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
+            //Set boolean to true
             mLocationPermissionGranted = true;
-        } else {
+        }
+        //Else request for permission
+        else {
             ActivityCompat.requestPermissions(activity,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
     }
 
-    //Called when user allows of denies a permission
+    //Called when user allows or denies a permission
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -191,7 +234,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         if (!(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             createLocationDialog(this, RemindersMapsActivity.this);
         }
-        //else enable location ui
+        //else enable location ui, get device location and set boolean to true
         else {
             mLocationPermissionGranted = true;
             getDeviceLocation(true, true);
@@ -228,40 +271,55 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         dialog.show();
     }
 
-    //Method to handle
+    //Method to configure how users interact with map fragment
     private void updateLocationUI() {
+        //Check if mMap is null
         if (mMap == null) {
             return;
         }
         try {
+            //Only run if location permission is granted
             if (mLocationPermissionGranted) {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
                 mMap.getUiSettings().setMapToolbarEnabled(false);
-            } else {
+            }
+            //Disable user location on map, button to get location and set last location to null
+            else {
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
                 mLastKnownLocation = null;
             }
-        } catch (SecurityException e) {
+        }
+        //Catch security exception and print stack to log
+        catch (SecurityException e) {
             Log.e("Exception: %s", e.getMessage());
         }
     }
 
+    //Method to get device location
     private void getDeviceLocation(final boolean isAnimated, final boolean moveCamera) {
+        //Get instance of fusedlocationproviderclient
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         try {
+            //If location permission is granted
             if (mLocationPermissionGranted) {
+                //Get last known location
                 Task location = mFusedLocationProviderClient.getLastLocation();
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
+                        //If task is successful
                         if (task.isSuccessful()) {
+                            //Set last known location
                             mLastKnownLocation = (Location) task.getResult();
+                            //If lastlocation is known
                             if (mLastKnownLocation != null) {
+                                //Call method to move camera
                                 moveCamera(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), isAnimated, moveCamera);
                             }
                         }
+                        //Else make toast to tell user that location cannot be found
                         else {
                             Toast.makeText(RemindersMapsActivity.this, R.string.toast_location_unavailable, Toast.LENGTH_SHORT).show();
                         }
@@ -269,33 +327,49 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
                 });
             }
         }
+        //Catch SercurityException for when location permission is not granted
         catch (SecurityException e) {
+            //Print error message to log
             Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage());
         }
     }
 
+    //Method to handle camera movement on map fragment
     private void moveCamera(LatLng latLng, boolean isAnimated, boolean moveCamera) {
+        //Create new cameraUpdate object with latlng parameters and constant zoom
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, MAP_ZOOM);
+        //If moveCamera boolean is true
         if (moveCamera) {
+            //If isAnimated boolean is true
             if (isAnimated) {
+                //Animate map fragment camera movement to new latlng
                 mMap.animateCamera(cameraUpdate);
             }
+            //If isAnimated boolean is false
             if (!isAnimated) {
+                //Move map fragment camera to new latlng
                 mMap.moveCamera(cameraUpdate);
             }
         }
     }
 
+    //Method handles getting the device's location called when user clicks on mylocation fab
     public void myLocation(View view) {
+        //Calls method to get location permission
         getLocationPermission(RemindersMapsActivity.this, getApplicationContext());
+        //If location permission is granted
         if (!(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+            //Call method ot get device location
             getDeviceLocation(true, true);
+            //Call method to configure map fragment interactions
             updateLocationUI();
         }
     }
 
+    //Method called when user selects menu item in options
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        //Open drawerlayout when home button is clicked
         switch (item.getItemId()) {
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
@@ -304,38 +378,52 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         return super.onOptionsItemSelected(item);
     }
 
+    //Method opens AddReminderActivity for users to add a new reminder and is called by addReminder fab
     public void addReminder(View view) {
+        //Create new intent to start AddReminderActivity
         Intent intent = new Intent(RemindersMapsActivity.this, AddReminderActivity.class);
+        //Start activity and wait for result
         startActivityForResult(intent, ADD_REMINDER);
     }
 
+    //Called when result is received
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        //Check which activity results are coming from
         if (requestCode == ADD_REMINDER) {
             if (resultCode == ADD_REMINDER) {
+                //Create new LatLng object to store lat and lng double variables
                 LatLng latLng = new LatLng(data.getDoubleExtra(AddReminderActivity.LAT, DEFAULT_LAT), data.getDoubleExtra(AddReminderActivity.LNG, DEFAULT_LNG));
-                RefreshRemindersAsyncTask task = new RefreshRemindersAsyncTask();
-                task.execute();
+                //Calling method to start async task to get reminders stored in database
+                getReminders();
+                //Call method to move camera to new latlng
                 moveCamera(latLng, true, true);
             }
         }
+        //Check which activity results are coming from
         if (requestCode == LIST_REMINDER) {
             if (resultCode == LIST_REMINDER) {
+                //Create new LatLng object to store lat and lng double variables
                 LatLng latLng = new LatLng(data.getDoubleExtra(ReminderAdapter.LAT, DEFAULT_LAT), data.getDoubleExtra(ReminderAdapter.LNG, DEFAULT_LNG));
+                //Call method to move camera to new latlng
                 moveCamera(latLng, true, true);
             }
         }
     }
 
+    //Method to create notification channel
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            //Get name and description of channel and declare channel importance
             CharSequence name = getString(R.string.channel_name);
             String description = getString(R.string.channel_desc);
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            //Create new notification channel object with channel id, name, importance as arguments
             NotificationChannel channel = new NotificationChannel(GeofenceTransitionsJobIntentService.CHANNEL_ID, name, importance);
+            //Set channel description
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
@@ -344,19 +432,26 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
+    //Class to retrieve all reminders from room database
     private class RefreshRemindersAsyncTask extends AsyncTask<Void, Void, ArrayList<Reminder>> {
         @Override
         protected ArrayList<Reminder> doInBackground(Void... voids) {
+            //Create new arraylist for reminders
             ArrayList<Reminder> reminders = new ArrayList<Reminder>();
+            //Populate new arraylist with reminders in room database
             reminders = (ArrayList<Reminder>)mReminderDatabase.reminderDao().getAll();
+            //Return reminders list
             return reminders;
         }
 
         @Override
         protected void onPostExecute(ArrayList<Reminder> reminders) {
             super.onPostExecute(reminders);
+            //Update reminders list with reminders from database
             mReminders = reminders;
+            //Method call to repopulate reminders on map
             populateRemindersOnMap();
+            //Get geofencing object to unregister any existing geofences, update reminders list to build new geofences and register them.
             mGeofencing.unRegisterGeofences();
             mGeofencing.updateGeofences(reminders);
             mGeofencing.registerGeofences();

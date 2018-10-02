@@ -49,6 +49,7 @@ import com.mad.remindmehere.model.Reminder;
 import java.io.IOException;
 import java.util.List;
 
+//This activity handles all the functions and behaviour displayed in the activity to add reminders
 public class AddReminderActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     //Variables to store ui elements
@@ -61,7 +62,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
     private FloatingActionButton mAddFab;
     private Circle mCircle;
 
-    //Variables to store values
+    //Variables to store data
     private boolean mLocationPermissionGranted;
     private Location mLastKnownLocation;
     private int mRadius;
@@ -81,6 +82,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         //Links xml layout to activity
         setContentView(R.layout.activity_add_reminder);
 
@@ -102,10 +104,9 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
             }
         });
 
-        //Linking fragment in xml layout
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        //Get display map in mapFragment
         mapFragment.getMapAsync(this);
 
         //Linking ui elements to variables
@@ -285,7 +286,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
-    //Method to configure how map fragment interaction
+    //Method to configure how users interact with map fragment
     private void updateUi() {
         //Try
         try {
@@ -392,7 +393,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         startActivityForResult(intent, SELECT_LOCATION_RESULT);
     }
 
-    //Called when SelectLocationMapsActivity returns result
+    //Called when result is received
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -419,8 +420,10 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
 
     //Class to add new reminder to room database
     private class AddRemindersAsyncTask extends AsyncTask<Reminder, Void, Void> {
+        //Method called when task is executed
         @Override
         protected Void doInBackground(Reminder... reminders) {
+            //Add reminder to room database
             mReminderDatabase.reminderDao().addReminder(reminders[0]);
             return null;
         }
