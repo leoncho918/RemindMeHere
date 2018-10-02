@@ -3,12 +3,9 @@ package com.mad.remindmehere.geofence;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Result;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.Geofence;
@@ -17,9 +14,9 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.mad.remindmehere.database.ReminderDatabase;
+import com.mad.remindmehere.GeofenceBroadcastReceiver;
 import com.mad.remindmehere.model.Reminder;
-import com.mad.remindmehere.service.GeofenceTransitionsIntentService;
+import com.mad.remindmehere.service.GeofenceTransitionsJobIntentService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,8 +104,8 @@ public class Geofencing implements ResultCallback {
         if (mGeofencePendingIntent != null) {
             return mGeofencePendingIntent;
         }
-        Intent intent = new Intent(mContext, GeofenceTransitionsIntentService.class);
-        mGeofencePendingIntent = PendingIntent.getService(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intent = new Intent(mContext, GeofenceBroadcastReceiver.class);
+        mGeofencePendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         return mGeofencePendingIntent;
     }
 

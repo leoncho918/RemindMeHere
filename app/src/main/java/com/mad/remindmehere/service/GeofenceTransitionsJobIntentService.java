@@ -1,42 +1,35 @@
 package com.mad.remindmehere.service;
 
-import android.app.IntentService;
-import android.app.Notification;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.Nullable;
+import android.support.v4.app.JobIntentService;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
-import com.google.android.gms.location.places.GeoDataClient;
-import com.google.android.gms.tasks.Task;
 import com.mad.remindmehere.R;
 import com.mad.remindmehere.activity.RemindersMapsActivity;
-import com.mad.remindmehere.model.Reminder;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 import java.util.List;
 
-public class GeofenceTransitionsIntentService extends IntentService {
+public class GeofenceTransitionsJobIntentService extends JobIntentService {
 
     public static final String TAG = "GeofenceTransition";
     public static final String CHANNEL_ID = "Reminders";
-    public static final String NAME = "GeofenceIntentService";
+    public static final int JOB_ID = 0;
+    public static final int PENDING_INTENT_REQUEST_ID = 8;
+    public static final String GROUP_KEY_REMINDER = "com.mad.remindmehere.service.REMINDER";
 
-    public GeofenceTransitionsIntentService() {
-        super(NAME);
+    public static void enqueueWork(Context context, Intent intent) {
+        enqueueWork(context, GeofenceTransitionsJobIntentService.class, JOB_ID, intent);
     }
 
     @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
+    protected void onHandleWork(Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if (geofencingEvent.hasError()) {
             String errorMessage = getErrorString(geofencingEvent.getErrorCode());
@@ -84,7 +77,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
     public void sendNotification(String name, String desc) {
         Intent notificationIntent = new Intent(getApplicationContext(), RemindersMapsActivity.class);
 
-        PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), PENDING_INTENT_REQUEST_ID, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_remind_notification)
@@ -92,6 +85,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
                 .setContentTitle(name)
                 .setContentText(desc)
                 .setContentIntent(contentIntent)
+                .setGroup(GROUP_KEY_REMINDER)
                 .setPriority(NotificationCompat.PRIORITY_MAX);
 
         NotificationManagerCompat managerCompat = NotificationManagerCompat.from(this);

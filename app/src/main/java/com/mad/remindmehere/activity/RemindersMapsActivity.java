@@ -46,7 +46,7 @@ import com.mad.remindmehere.adapter.InfoWindowAdapter;
 import com.mad.remindmehere.adapter.ReminderAdapter;
 import com.mad.remindmehere.database.ReminderDatabase;
 import com.mad.remindmehere.model.Reminder;
-import com.mad.remindmehere.service.GeofenceTransitionsIntentService;
+import com.mad.remindmehere.service.GeofenceTransitionsJobIntentService;
 
 import java.util.ArrayList;
 
@@ -258,7 +258,9 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()) {
                             mLastKnownLocation = (Location) task.getResult();
-                            moveCamera(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), isAnimated, moveCamera);
+                            if (mLastKnownLocation != null) {
+                                moveCamera(new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude()), isAnimated, moveCamera);
+                            }
                         }
                         else {
                             Toast.makeText(RemindersMapsActivity.this, R.string.toast_location_unavailable, Toast.LENGTH_SHORT).show();
@@ -333,7 +335,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
             CharSequence name = getString(R.string.channel_name);
             String description = getString(R.string.channel_desc);
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(GeofenceTransitionsIntentService.CHANNEL_ID, name, importance);
+            NotificationChannel channel = new NotificationChannel(GeofenceTransitionsJobIntentService.CHANNEL_ID, name, importance);
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
