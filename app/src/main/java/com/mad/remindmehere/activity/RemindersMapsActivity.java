@@ -140,6 +140,8 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         getReminders();
 
         initialiseGeofencer();
+
+        createNotificationChannel();
     }
 
     private void initialiseDatabase() {

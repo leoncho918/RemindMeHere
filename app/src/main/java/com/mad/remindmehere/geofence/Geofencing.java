@@ -86,7 +86,7 @@ public class Geofencing implements ResultCallback {
         mGeofenceList = new ArrayList<>();
         for (Reminder r : reminders) {
             Geofence geofence = new Geofence.Builder()
-                    .setRequestId(r.getId() + "")
+                    .setRequestId(r.getName() + "," + r.getDescription())
                     .setExpirationDuration(Geofence.NEVER_EXPIRE)
                     .setCircularRegion(r.getLat(), r.getLng(), (float)r.getRadius())
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
@@ -97,7 +97,7 @@ public class Geofencing implements ResultCallback {
 
     private GeofencingRequest getGeofencingRequest() {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER | GeofencingRequest.INITIAL_TRIGGER_EXIT);
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
         builder.addGeofences(mGeofenceList);
         return builder.build();
     }
