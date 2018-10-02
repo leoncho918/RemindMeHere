@@ -45,18 +45,26 @@ public class GeofenceTransitionsIntentService extends IntentService {
         }
 
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
-        Log.d(TAG, "Geofence Triggered");
 
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
             List<Geofence> triggeredGeofences = geofencingEvent.getTriggeringGeofences();
+            Log.d(TAG, "Geofence Entered");
             for (Geofence g : triggeredGeofences) {
                 String nameDesc = g.getRequestId();
                 String[] reminderDetails = nameDesc.split(",");
 
                 if (reminderDetails.length > 1) {
+                    Log.d(TAG, "Notificaiton Sent");
                     sendNotification(reminderDetails[0], reminderDetails[1]);
                 }
+                else {
+                    Log.d(TAG, "Notificaiton Sent");
+                    sendNotification(reminderDetails[0], "");
+                }
             }
+        }
+        else {
+            Log.d(TAG, "Geofence Exited");
         }
     }
 
