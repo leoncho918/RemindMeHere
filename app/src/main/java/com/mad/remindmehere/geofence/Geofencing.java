@@ -46,13 +46,13 @@ public class Geofencing implements ResultCallback {
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Log.e(TAG, "Geofences Registered");
+                                Log.d(TAG, "Geofences Registered");
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG, "Geofences Failed Registration");
+                                Log.d(TAG, "Geofences Failed Registration");
                             }
                         });
             } catch (SecurityException e) {
@@ -67,13 +67,13 @@ public class Geofencing implements ResultCallback {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.e(TAG, "Geofences Removed");
+                            Log.d(TAG, "Geofences Removed");
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.e(TAG, "Geofences Failed Removal");
+                            Log.d(TAG, "Geofences Failed Removal");
                         }
                     });
         }
@@ -86,7 +86,7 @@ public class Geofencing implements ResultCallback {
         mGeofenceList = new ArrayList<>();
         for (Reminder r : reminders) {
             Geofence geofence = new Geofence.Builder()
-                    .setRequestId(r.getId() + "")
+                    .setRequestId(r.getName() + "," + r.getDescription())
                     .setExpirationDuration(Geofence.NEVER_EXPIRE)
                     .setCircularRegion(r.getLat(), r.getLng(), (float)r.getRadius())
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
@@ -97,13 +97,13 @@ public class Geofencing implements ResultCallback {
 
     private GeofencingRequest getGeofencingRequest() {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER | GeofencingRequest.INITIAL_TRIGGER_EXIT);
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
         builder.addGeofences(mGeofenceList);
         return builder.build();
     }
 
     private PendingIntent getGeofencePendingIntent() {
-        Log.e(TAG, "Intent Called");
+        Log.d(TAG, "Intent Called");
         if (mGeofencePendingIntent != null) {
             return mGeofencePendingIntent;
         }

@@ -2,6 +2,8 @@ package com.mad.remindmehere.service;
 
 import android.app.IntentService;
 import android.app.Notification;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -13,8 +15,10 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
 import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.tasks.Task;
 import com.mad.remindmehere.R;
 import com.mad.remindmehere.activity.RemindersMapsActivity;
+import com.mad.remindmehere.model.Reminder;
 
 import org.w3c.dom.Text;
 
@@ -41,12 +45,18 @@ public class GeofenceTransitionsIntentService extends IntentService {
         }
 
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
-        Log.e(TAG, "Geofence Triggered");
+        Log.d(TAG, "Geofence Triggered");
 
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
             List<Geofence> triggeredGeofences = geofencingEvent.getTriggeringGeofences();
+            for (Geofence g : triggeredGeofences) {
+                String nameDesc = g.getRequestId();
+                String[] reminderDetails = nameDesc.split(",");
 
-            sendNotification();
+                if (reminderDetails.length > 1) {
+                    sendNotification(reminderDetails[0], reminderDetails[1]);
+                }
+            }
         }
     }
 
@@ -63,13 +73,18 @@ public class GeofenceTransitionsIntentService extends IntentService {
         }
     }
 
-    public void sendNotification() {
+    public void sendNotification(String name, String desc) {
         Intent notificationIntent = new Intent(getApplicationContext(), RemindersMapsActivity.class);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_remind_notification)
-                .setContentTitle("Reminder")
-                .setContentText("You have a new reminder")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setColor(getResources().getColor(R.color.colorPrimary))
+                .setContentTitle(name)
+                .setContentText(desc)
+                .setContentIntent(contentIntent)
+                .setPriority(NotificationCompat.PRIORITY_MAX);
 
         NotificationManagerCompat managerCompat = NotificationManagerCompat.from(this);
         managerCompat.notify(0, mBuilder.build());
