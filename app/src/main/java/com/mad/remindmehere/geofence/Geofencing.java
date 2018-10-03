@@ -28,6 +28,7 @@ public class Geofencing implements ResultCallback {
     private Context mContext;
     private GeofencingClient mClient;
     public static final String TAG = "Geofence";
+    public static final int DWELL_TIME = 15000;
 
     public Geofencing(Context mContext) {
         this.mGeofenceList = new ArrayList<>();
@@ -86,7 +87,8 @@ public class Geofencing implements ResultCallback {
                     .setRequestId(r.getName() + "," + r.getDescription())
                     .setExpirationDuration(Geofence.NEVER_EXPIRE)
                     .setCircularRegion(r.getLat(), r.getLng(), (float)r.getRadius())
-                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                    .setLoiteringDelay(DWELL_TIME)
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL)
                     .build();
             mGeofenceList.add(geofence);
         }

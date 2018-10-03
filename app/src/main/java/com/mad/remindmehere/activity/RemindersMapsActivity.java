@@ -420,7 +420,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
             //Get name and description of channel and declare channel importance
             CharSequence name = getString(R.string.channel_name);
             String description = getString(R.string.channel_desc);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            int importance = NotificationManager.IMPORTANCE_MAX;
             //Create new notification channel object with channel id, name, importance as arguments
             NotificationChannel channel = new NotificationChannel(GeofenceTransitionsJobIntentService.CHANNEL_ID, name, importance);
             //Set channel description

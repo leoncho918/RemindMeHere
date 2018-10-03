@@ -57,7 +57,7 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
             }
         }
         else {
-            Log.d(TAG, "Geofence Exited");
+            Log.d(TAG, "Geofence Dwelling");
         }
     }
 
@@ -86,6 +86,7 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
                 .setContentText(desc)
                 .setContentIntent(contentIntent)
                 .setGroup(GROUP_KEY_REMINDER)
+                .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_MAX);
 
         NotificationManagerCompat managerCompat = NotificationManagerCompat.from(this);
