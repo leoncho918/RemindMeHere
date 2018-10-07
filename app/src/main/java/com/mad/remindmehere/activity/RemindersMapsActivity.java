@@ -40,13 +40,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mad.remindmehere.geofence.Geofencing;
 import com.mad.remindmehere.R;
 import com.mad.remindmehere.adapter.InfoWindowAdapter;
 import com.mad.remindmehere.adapter.ReminderAdapter;
 import com.mad.remindmehere.database.ReminderDatabase;
 import com.mad.remindmehere.model.Reminder;
-import com.mad.remindmehere.service.GeofenceTransitionsJobIntentService;
+import com.mad.remindmehere.geofence.GeofenceTransitionsJobIntentService;
 
 import java.util.ArrayList;
 
@@ -110,6 +113,9 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
                     Intent intent = new Intent(RemindersMapsActivity.this, RemindersListActivity.class);
                     //Start activity and wait for result
                     startActivityForResult(intent, LIST_REMINDER);
+                }
+                if (id == R.id.nav_export) {
+                    reminderToJson();
                 }
 
                 return false;
@@ -430,6 +436,15 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
+    }
+
+    private JsonObject reminderToJson() {
+        Gson gson = new Gson();
+        String stringJson = gson.toJson(mReminders);
+        JsonParser parser = new JsonParser();
+        JsonObject jsonReminder = parser.parse(stringJson).getAsJsonObject();
+        //TODO: Export Reminders, Import Reminders
+        return null;
     }
 
     //Class to retrieve all reminders from room database

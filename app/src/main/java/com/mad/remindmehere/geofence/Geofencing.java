@@ -14,9 +14,7 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.mad.remindmehere.GeofenceBroadcastReceiver;
 import com.mad.remindmehere.model.Reminder;
-import com.mad.remindmehere.service.GeofenceTransitionsJobIntentService;
 
 import java.util.ArrayList;
 import java.util.List;

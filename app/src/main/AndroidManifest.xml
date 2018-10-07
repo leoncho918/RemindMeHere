@@ -71,11 +71,11 @@
             android:screenOrientation="portrait" />
         <activity android:name=".activity.EditRemindersActivity"></activity>
         <receiver
-            android:name=".GeofenceBroadcastReceiver"
+            android:name=".geofence.GeofenceBroadcastReceiver"
             android:enabled="true"
             android:exported="true" />
         <service
-            android:name=".service.GeofenceTransitionsJobIntentService"
+            android:name=".geofence.GeofenceTransitionsJobIntentService"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE"/>
     </application>

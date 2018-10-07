@@ -1,10 +1,8 @@
-package com.mad.remindmehere;
+package com.mad.remindmehere.geofence;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
-import com.mad.remindmehere.service.GeofenceTransitionsJobIntentService;
 
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     @Override
