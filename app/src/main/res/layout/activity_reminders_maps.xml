@@ -13,22 +13,57 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <android.support.v7.widget.Toolbar
-                        android:id="@+id/toolbar"
+                    <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="?attr/actionBarSize"
-                        android:background="@color/colorPrimary"
-                        android:elevation="4dp"
-                        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-                        app:title="@string/title_activity_reminders_maps"/>
+                        android:layout_height="match_parent">
 
-                    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-                        xmlns:tools="http://schemas.android.com/tools"
-                        android:id="@+id/map"
-                        android:name="com.google.android.gms.maps.SupportMapFragment"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        tools:context=".activity.RemindersMapsActivity"/>
+                        <android.support.v7.widget.Toolbar
+                            android:id="@+id/toolbar"
+                            android:layout_width="match_parent"
+                            android:layout_height="?attr/actionBarSize"
+                            android:background="@color/colorPrimary"
+                            android:elevation="4dp"
+                            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+                            app:title="@string/title_activity_reminders_maps"/>
+
+                        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+                            xmlns:tools="http://schemas.android.com/tools"
+                            android:id="@+id/map"
+                            android:name="com.google.android.gms.maps.SupportMapFragment"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            tools:context=".activity.RemindersMapsActivity"/>
+
+                        <EditText
+                            android:id="@+id/json_Tv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="@dimen/fab_margin"
+                            android:layout_below="@id/toolbar"
+                            android:visibility="gone"/>
+
+                        <Button
+                            android:id="@+id/cancel_btn"
+                            android:backgroundTint="@color/colorPrimary"
+                            android:layout_marginLeft="@dimen/fab_margin"
+                            android:layout_below="@id/json_Tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/json_cancel"
+                            android:visibility="gone"/>
+
+                        <Button
+                            android:id="@+id/addReminder_btn"
+                            android:backgroundTint="@color/colorPrimary"
+                            android:layout_marginRight="@dimen/fab_margin"
+                            android:layout_alignParentRight="true"
+                            android:layout_below="@id/json_Tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/json_add"
+                            android:visibility="gone"/>
+
+                    </RelativeLayout>
 
                     <android.support.design.widget.FloatingActionButton
                         android:id="@+id/myLocation_fab"

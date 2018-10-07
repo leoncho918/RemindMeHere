@@ -3,8 +3,11 @@ package com.mad.remindmehere.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,8 +25,11 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 
@@ -51,6 +57,9 @@ import com.mad.remindmehere.database.ReminderDatabase;
 import com.mad.remindmehere.model.Reminder;
 import com.mad.remindmehere.geofence.GeofenceTransitionsJobIntentService;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 //This activity handles all the functions and behaviour in the actitivy that shows all reminders on a map
@@ -59,6 +68,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     //Variables to store ui elements
     private GoogleMap mMap;
     private DrawerLayout mDrawerLayout;
+    private SupportMapFragment mMapFragment;
 
     //Variables to store data
     private static boolean mLocationPermissionGranted;
@@ -78,6 +88,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     public static final double DEFAULT_LNG = -122.084;
     public static final int ADD_REMINDER = 1;
     public static final int LIST_REMINDER = 3;
+    public static final int TOAST_OFFSET = 0;
 
     //Called when the activity is created
     @Override
@@ -91,6 +102,21 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             this.getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
         }
+
+        //Linking toolbar from xml layout
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //Setting toolbar as the support action bar
+        setSupportActionBar(toolbar);
+        //Linking support action bar in xml file with variable
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        //Enabling button to go back
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        //Changing icon for button to custom drawable
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        mMapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mMapFragment.getMapAsync(this);
 
         //Create navigation view to link to navigation view in menu resources
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -109,33 +135,36 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
 
                 //Checks what navigation item is selected
                 if (id == R.id.nav_reminders) {
+                    //Make Map Visible again
+                    mMapFragment.getView().setVisibility(View.VISIBLE);
                     //Create a new intent to start ReminderListActivity
                     Intent intent = new Intent(RemindersMapsActivity.this, RemindersListActivity.class);
                     //Start activity and wait for result
                     startActivityForResult(intent, LIST_REMINDER);
                 }
                 if (id == R.id.nav_export) {
-                    reminderToJson();
+                    //Make Map Visible again
+                    mMapFragment.getView().setVisibility(View.VISIBLE);
+                    //Method call to save json string into clipboard
+                    saveRemindersToClipboard(reminderToJsonString());
+                    //Show toast to notify user their reminders are saved in clipboard
+                    Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.clipboard_reminders), Toast.LENGTH_LONG);
+                    //Set text alignment of toast to center by getting layout of toast and getting textview from layout
+                    LinearLayout layout = (LinearLayout) toast.getView();
+                    if (layout.getChildCount() > 0) {
+                        TextView textView = (TextView) layout.getChildAt(0);
+                        textView.setGravity(Gravity.CENTER);
+                    }
+                    //Show toast
+                    toast.show();
                 }
-
+                if (id == R.id.nav_import) {
+                    //Set map fragment to gone
+                    mMapFragment.getView().setVisibility(View.GONE);
+                }
                 return false;
             }
         });
-
-        //Linking toolbar from xml layout
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //Setting toolbar as the support action bar
-        setSupportActionBar(toolbar);
-        //Linking support action bar in xml file with variable
-        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
-        //Enabling button to go back
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        //Changing icon for button to custom drawable
-        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
     }
 
 
@@ -361,6 +390,8 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
 
     //Method handles getting the device's location called when user clicks on mylocation fab
     public void myLocation(View view) {
+        //Make Map Visible again
+        mMapFragment.getView().setVisibility(View.VISIBLE);
         //Calls method to get location permission
         getLocationPermission(RemindersMapsActivity.this, getApplicationContext());
         //If location permission is granted
@@ -386,6 +417,8 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
 
     //Method opens AddReminderActivity for users to add a new reminder and is called by addReminder fab
     public void addReminder(View view) {
+        //Make Map Visible again
+        mMapFragment.getView().setVisibility(View.VISIBLE);
         //Create new intent to start AddReminderActivity
         Intent intent = new Intent(RemindersMapsActivity.this, AddReminderActivity.class);
         //Start activity and wait for result
@@ -438,13 +471,16 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    private JsonObject reminderToJson() {
+    private String reminderToJsonString() {
         Gson gson = new Gson();
         String stringJson = gson.toJson(mReminders);
-        JsonParser parser = new JsonParser();
-        JsonObject jsonReminder = parser.parse(stringJson).getAsJsonObject();
-        //TODO: Export Reminders, Import Reminders
-        return null;
+        return stringJson;
+    }
+
+    private void saveRemindersToClipboard(String jsonString) {
+        ClipboardManager manager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText(getString(R.string.clipboard_name), jsonString);
+        manager.setPrimaryClip(clip);
     }
 
     //Class to retrieve all reminders from room database
