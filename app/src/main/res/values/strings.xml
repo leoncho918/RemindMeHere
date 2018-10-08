@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Reminders</string>
     <string name="title_activity_reminders_maps">Map</string>
+    <string name="title_activity_reminders_maps_json">Import Reminders</string>
     <string name="dialog_title">Location Permission Required</string>
     <string name="dialog_message">Location Permission is required to locate where you are.</string>
     <string name="dialog_allow">Allow</string>
@@ -37,4 +38,5 @@
     <string name="json_add">Add</string>
     <string name="json_hint">Enter reminder json string</string>
     <string name="delimiter">///</string>
+    <string name="json_error">Please enter some valid JSON text</string>
 </resources>

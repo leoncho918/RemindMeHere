@@ -3,7 +3,6 @@ package com.mad.remindmehere.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ClipData;
@@ -23,6 +22,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
@@ -50,8 +50,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.mad.remindmehere.geofence.Geofencing;
 import com.mad.remindmehere.R;
 import com.mad.remindmehere.adapter.InfoWindowAdapter;
@@ -60,9 +59,6 @@ import com.mad.remindmehere.database.ReminderDatabase;
 import com.mad.remindmehere.model.Reminder;
 import com.mad.remindmehere.geofence.GeofenceTransitionsJobIntentService;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 
 //This activity handles all the functions and behaviour in the actitivy that shows all reminders on a map
@@ -75,6 +71,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     private EditText mJsonEditText;
     private Button mCancelBtn;
     private Button mAddBtn;
+    private Toolbar mToolbar;
 
     //Variables to store data
     private static boolean mLocationPermissionGranted;
@@ -124,7 +121,6 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
             @Override
             public void onClick(View v) {
                 hideJsonEt();
-                mJsonEditText.getText().clear();
                 Activity activity = RemindersMapsActivity.this;
                 InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
                 //Find the currently focused view, so we can grab the correct window token from it.
@@ -137,11 +133,11 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
             }
         });
         //Linking toolbar from xml layout
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         //Setting toolbar as the support action bar
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
         //Linking support action bar in xml file with variable
-        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        ActionBar actionBar = getSupportActionBar();
         //Enabling button to go back
         actionBar.setDisplayHomeAsUpEnabled(true);
         //Changing icon for button to custom drawable
@@ -345,6 +341,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         mJsonEditText.setVisibility(View.VISIBLE);
         mAddBtn.setVisibility(View.VISIBLE);
         mCancelBtn.setVisibility(View.VISIBLE);
+        mToolbar.setTitle(R.string.title_activity_reminders_maps_json);
     }
 
     //Method to set the maps visibility to visible and set buttons and edittext to gone
@@ -353,18 +350,36 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         mJsonEditText.setVisibility(View.GONE);
         mAddBtn.setVisibility(View.GONE);
         mCancelBtn.setVisibility(View.GONE);
+        mJsonEditText.getText().clear();
+        mToolbar.setTitle(R.string.title_activity_reminders_maps);
     }
 
     private void addJsonReminders() {
         String jsonString = mJsonEditText.getText().toString();
         Gson gson = new Gson();
+        Reminder reminder;
+        ArrayList<Reminder> reminderArrayList = new ArrayList<>();
         String[] jsonStringArray = jsonString.split(getString(R.string.delimiter));
         for (String s : jsonStringArray) {
-            Reminder newReminder = gson.fromJson(s, Reminder.class);
-            mReminders.add(newReminder);
+            try {
+                reminder = gson.fromJson(s, Reminder.class);
+            }
+            catch (JsonSyntaxException e) {
+                Toast.makeText(getApplicationContext(), getString(R.string.json_error), Toast.LENGTH_LONG).show();
+                Log.e(TAG, e.getMessage());
+                return;
+            }
+            Reminder newReminder = new Reminder();
+            newReminder.setDescription(reminder.getDescription());
+            newReminder.setLat(reminder.getLat());
+            newReminder.setLng(reminder.getLng());
+            newReminder.setName(reminder.getName());
+            newReminder.setRadius(reminder.getRadius());
+            reminderArrayList.add(newReminder);
         }
         hideJsonEt();
-        //TODO: Store reminders persistently
+        AddRemindersAsyncTask task = new AddRemindersAsyncTask();
+        task.execute(reminderArrayList);
     }
 
     //Method to configure how users interact with map fragment
@@ -575,6 +590,25 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
             mGeofencing.unRegisterGeofences();
             mGeofencing.updateGeofences(reminders);
             mGeofencing.registerGeofences();
+        }
+    }
+
+    //Class to add new reminder to room database
+    private class AddRemindersAsyncTask extends AsyncTask<ArrayList<Reminder>, Void, Void> {
+        //Method called when task is executed
+        @Override
+        protected Void doInBackground(ArrayList<Reminder>... arrayLists) {
+            for (Reminder r : arrayLists[0]) {
+                mReminderDatabase.reminderDao().addReminder(r);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            RefreshRemindersAsyncTask task = new RefreshRemindersAsyncTask();
+            task.execute();
         }
     }
 }

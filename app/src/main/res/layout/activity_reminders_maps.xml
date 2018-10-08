@@ -37,11 +37,12 @@
                         <EditText
                             android:id="@+id/json_Et"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="525dp"
                             android:layout_below="@id/toolbar"
                             android:layout_margin="@dimen/fab_margin"
                             android:hint="@string/json_hint"
-                            android:visibility="gone" />
+                            android:isScrollContainer="true"
+                            android:visibility="gone"/>
 
                         <Button
                             android:id="@+id/cancel_btn"
