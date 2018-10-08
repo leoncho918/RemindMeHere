@@ -28,6 +28,9 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -69,6 +72,9 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     private GoogleMap mMap;
     private DrawerLayout mDrawerLayout;
     private SupportMapFragment mMapFragment;
+    private EditText mJsonEditText;
+    private Button mCancelBtn;
+    private Button mAddBtn;
 
     //Variables to store data
     private static boolean mLocationPermissionGranted;
@@ -103,6 +109,33 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
             this.getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
         }
 
+        //Linking components from xml
+        mJsonEditText = (EditText) findViewById(R.id.json_Et);
+        mAddBtn = (Button) findViewById(R.id.addReminder_btn);
+        mCancelBtn = (Button) findViewById(R.id.cancel_btn);
+        //Set on click listeners for buttons
+        mAddBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addJsonReminders();
+            }
+        });
+        mCancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideJsonEt();
+                mJsonEditText.getText().clear();
+                Activity activity = RemindersMapsActivity.this;
+                InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                //Find the currently focused view, so we can grab the correct window token from it.
+                View view = activity.getCurrentFocus();
+                //If no view currently has focus, create a new one, just so we can grab a window token from it
+                if (view == null) {
+                    view = new View(activity);
+                }
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        });
         //Linking toolbar from xml layout
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //Setting toolbar as the support action bar
@@ -135,16 +168,16 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
 
                 //Checks what navigation item is selected
                 if (id == R.id.nav_reminders) {
-                    //Make Map Visible again
-                    mMapFragment.getView().setVisibility(View.VISIBLE);
+                    //Method call to make map fragment visible
+                    hideJsonEt();
                     //Create a new intent to start ReminderListActivity
                     Intent intent = new Intent(RemindersMapsActivity.this, RemindersListActivity.class);
                     //Start activity and wait for result
                     startActivityForResult(intent, LIST_REMINDER);
                 }
                 if (id == R.id.nav_export) {
-                    //Make Map Visible again
-                    mMapFragment.getView().setVisibility(View.VISIBLE);
+                    //Method call to make map fragment visible
+                    hideJsonEt();
                     //Method call to save json string into clipboard
                     saveRemindersToClipboard(reminderToJsonString());
                     //Show toast to notify user their reminders are saved in clipboard
@@ -159,8 +192,8 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
                     toast.show();
                 }
                 if (id == R.id.nav_import) {
-                    //Set map fragment to gone
-                    mMapFragment.getView().setVisibility(View.GONE);
+                    //Method call to make json Edit Text visible
+                    showJsonEt();
                 }
                 return false;
             }
@@ -306,6 +339,34 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         dialog.show();
     }
 
+    //Method to set the maps visibility to gone and set buttons and edittext to visible
+    private void showJsonEt() {
+        mMapFragment.getView().setVisibility(View.GONE);
+        mJsonEditText.setVisibility(View.VISIBLE);
+        mAddBtn.setVisibility(View.VISIBLE);
+        mCancelBtn.setVisibility(View.VISIBLE);
+    }
+
+    //Method to set the maps visibility to visible and set buttons and edittext to gone
+    private void hideJsonEt() {
+        mMapFragment.getView().setVisibility(View.VISIBLE);
+        mJsonEditText.setVisibility(View.GONE);
+        mAddBtn.setVisibility(View.GONE);
+        mCancelBtn.setVisibility(View.GONE);
+    }
+
+    private void addJsonReminders() {
+        String jsonString = mJsonEditText.getText().toString();
+        Gson gson = new Gson();
+        String[] jsonStringArray = jsonString.split(getString(R.string.delimiter));
+        for (String s : jsonStringArray) {
+            Reminder newReminder = gson.fromJson(s, Reminder.class);
+            mReminders.add(newReminder);
+        }
+        hideJsonEt();
+        //TODO: Store reminders persistently
+    }
+
     //Method to configure how users interact with map fragment
     private void updateLocationUI() {
         //Check if mMap is null
@@ -390,8 +451,8 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
 
     //Method handles getting the device's location called when user clicks on mylocation fab
     public void myLocation(View view) {
-        //Make Map Visible again
-        mMapFragment.getView().setVisibility(View.VISIBLE);
+        //Method call to make map fragment visible
+        hideJsonEt();
         //Calls method to get location permission
         getLocationPermission(RemindersMapsActivity.this, getApplicationContext());
         //If location permission is granted
@@ -417,8 +478,8 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
 
     //Method opens AddReminderActivity for users to add a new reminder and is called by addReminder fab
     public void addReminder(View view) {
-        //Make Map Visible again
-        mMapFragment.getView().setVisibility(View.VISIBLE);
+        //Method call to make map fragment visible
+        hideJsonEt();
         //Create new intent to start AddReminderActivity
         Intent intent = new Intent(RemindersMapsActivity.this, AddReminderActivity.class);
         //Start activity and wait for result
@@ -473,7 +534,15 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
 
     private String reminderToJsonString() {
         Gson gson = new Gson();
-        String stringJson = gson.toJson(mReminders);
+        String stringJson = "";
+        if (mReminders.size() > 0) {
+            stringJson = gson.toJson(mReminders.get(0));
+        }
+        if (mReminders.size() > 1) {
+            for (int i = 1; i < mReminders.size(); i++) {
+                stringJson = stringJson + getString(R.string.delimiter) + gson.toJson(mReminders.get(i));
+            }
+        }
         return stringJson;
     }
 

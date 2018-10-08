@@ -35,4 +35,6 @@
     <string name="clipboard_reminders">Reminders have been copied to the clipboard</string>
     <string name="json_cancel">Cancel</string>
     <string name="json_add">Add</string>
+    <string name="json_hint">Enter reminder json string</string>
+    <string name="delimiter">///</string>
 </resources>

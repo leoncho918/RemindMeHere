@@ -35,18 +35,19 @@
                             tools:context=".activity.RemindersMapsActivity"/>
 
                         <EditText
-                            android:id="@+id/json_Tv"
+                            android:id="@+id/json_Et"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_margin="@dimen/fab_margin"
                             android:layout_below="@id/toolbar"
-                            android:visibility="gone"/>
+                            android:layout_margin="@dimen/fab_margin"
+                            android:hint="@string/json_hint"
+                            android:visibility="gone" />
 
                         <Button
                             android:id="@+id/cancel_btn"
                             android:backgroundTint="@color/colorPrimary"
                             android:layout_marginLeft="@dimen/fab_margin"
-                            android:layout_below="@id/json_Tv"
+                            android:layout_below="@id/json_Et"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/json_cancel"
@@ -57,7 +58,7 @@
                             android:backgroundTint="@color/colorPrimary"
                             android:layout_marginRight="@dimen/fab_margin"
                             android:layout_alignParentRight="true"
-                            android:layout_below="@id/json_Tv"
+                            android:layout_below="@id/json_Et"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/json_add"
