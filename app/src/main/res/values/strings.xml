@@ -39,4 +39,6 @@
     <string name="json_hint">Enter reminder json string</string>
     <string name="delimiter">///</string>
     <string name="json_error">Please enter some valid JSON text</string>
+    <string name="geofence_remove_success">Reminder geofences removed successfully.</string>
+    <string name="geofence_remove_fail">Failed to remove reminder geofences.</string>
 </resources>

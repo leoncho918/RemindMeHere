@@ -153,12 +153,12 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
                 mRadius = progress;
                 updateCircle();
             }
-
+            //Called when seekbar starts tracking users finger
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
 
             }
-
+            //Called when seekbar stops tracking users finger
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
 
@@ -278,7 +278,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         if (!(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             RemindersMapsActivity.createLocationDialog(this, AddReminderActivity.this);
         }
-        //else enable location ui, get location and set boolean to true
+        //else enable map ui, get location and set boolean to true
         else {
             mLocationPermissionGranted = true;
             getDeviceLocation(true);

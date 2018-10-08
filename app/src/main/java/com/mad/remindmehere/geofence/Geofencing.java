@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.Result;
 import com.google.android.gms.common.api.ResultCallback;
@@ -14,6 +15,7 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.mad.remindmehere.R;
 import com.mad.remindmehere.model.Reminder;
 
 import java.util.ArrayList;
@@ -42,13 +44,14 @@ public class Geofencing implements ResultCallback {
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "Geofences Registered");
+                                Log.d(TAG, mContext.getString(R.string.geofence_success));
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, "Geofences Failed Registration");
+                                Log.d(TAG, mContext.getString(R.string.geofence_fail));
+                                Toast.makeText(mContext, mContext.getString(R.string.geofence_fail), Toast.LENGTH_LONG);
                             }
                         });
             } catch (SecurityException e) {
@@ -63,13 +66,14 @@ public class Geofencing implements ResultCallback {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "Geofences Removed");
+                            Log.d(TAG, mContext.getString(R.string.geofence_remove_success));
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "Geofences Failed Removal");
+                            Log.d(TAG, mContext.getString(R.string.geofence_remove_fail));
+                            Toast.makeText(mContext, mContext.getString(R.string.geofence_remove_fail), Toast.LENGTH_LONG);
                         }
                     });
         }
