@@ -64,7 +64,7 @@ import java.util.ArrayList;
 //This activity handles all the functions and behaviour in the actitivy that shows all reminders on a map
 public class RemindersMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    //Variables to store ui elements
+    //Variables to store ui widgets
     private GoogleMap mMap;
     private DrawerLayout mDrawerLayout;
     private SupportMapFragment mMapFragment;
@@ -505,7 +505,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        //Check which activity results are coming from
+        //Check that request code and results code are equal to request code sent with intent
         if (requestCode == ADD_REMINDER) {
             if (resultCode == ADD_REMINDER) {
                 //Create new LatLng object to store lat and lng double variables
@@ -569,6 +569,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
 
     //Class to retrieve all reminders from room database
     private class RefreshRemindersAsyncTask extends AsyncTask<Void, Void, ArrayList<Reminder>> {
+        //Method called when asynctask starts
         @Override
         protected ArrayList<Reminder> doInBackground(Void... voids) {
             //Create new arraylist for reminders
@@ -578,7 +579,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
             //Return reminders list
             return reminders;
         }
-
+        //Method called when asynctask finishes running
         @Override
         protected void onPostExecute(ArrayList<Reminder> reminders) {
             super.onPostExecute(reminders);

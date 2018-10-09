@@ -52,7 +52,7 @@ import java.util.List;
 //This activity handles all the functions and behaviour displayed in the activity to add reminders
 public class AddReminderActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    //Variables to store ui elements
+    //Variables to store ui widgets
     private GoogleMap mMap;
     private LatLng mLatLng;
     private TextView mAddressTv;
@@ -109,7 +109,7 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //Linking ui elements to variables
+        //Linking ui widgets to variables
         mAddressTv = (TextView) findViewById(R.id.location_Tv);
         mNameEt = (EditText) findViewById(R.id.name_Et);
         mDescEt = (EditText) findViewById(R.id.desc_Et);

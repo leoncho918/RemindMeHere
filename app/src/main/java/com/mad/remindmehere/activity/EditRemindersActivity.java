@@ -43,7 +43,7 @@ import com.mad.remindmehere.model.Reminder;
 
 public class EditRemindersActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    //Variables to store ui elements
+    //Variables to store ui widgets
     private GoogleMap mMap;
     private TextView mAddressTv;
     private EditText mNameEt;
@@ -80,7 +80,7 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             this.getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
         }
-        //Linking ui elements to variables
+        //Linking ui widgets to variables
         mAddressTv = (TextView) findViewById(R.id.location_Tv);
         mNameEt = (EditText) findViewById(R.id.name_Et);
         mDescEt = (EditText) findViewById(R.id.desc_Et);
