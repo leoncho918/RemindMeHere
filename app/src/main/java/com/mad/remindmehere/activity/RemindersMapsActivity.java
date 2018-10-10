@@ -335,7 +335,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         dialog.show();
     }
 
-    //Method to set the maps visibility to gone and set buttons and edittext to visible
+    //Method to set the maps visibility to gone, set buttons, edittext to visible and change title of toolbar
     private void showJsonEt() {
         mMapFragment.getView().setVisibility(View.GONE);
         mJsonEditText.setVisibility(View.VISIBLE);
@@ -344,7 +344,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         mToolbar.setTitle(R.string.title_activity_reminders_maps_json);
     }
 
-    //Method to set the maps visibility to visible and set buttons and edittext to gone
+    //Method to set the maps visibility to visible, set buttons and edittext to gone and change title of toolbar
     private void hideJsonEt() {
         mMapFragment.getView().setVisibility(View.VISIBLE);
         mJsonEditText.setVisibility(View.GONE);
@@ -354,31 +354,49 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         mToolbar.setTitle(R.string.title_activity_reminders_maps);
     }
 
+    //Method to handle the conversion of JSON string into reminder objects and add them to database
     private void addJsonReminders() {
+        //Create string variable and assign with string entered in edittext
         String jsonString = mJsonEditText.getText().toString();
+        //Create new gson object
         Gson gson = new Gson();
+        //Create new reminder object
         Reminder reminder;
+        //Create new reminder arraylist to store new reminders
         ArrayList<Reminder> reminderArrayList = new ArrayList<>();
+        //Create new String array to store each reminder object in json string
         String[] jsonStringArray = jsonString.split(getString(R.string.delimiter));
+        //For each loop to run through each reminder json string
         for (String s : jsonStringArray) {
+            //Try
             try {
+                //Initiate reminder object by converting json string into object
                 reminder = gson.fromJson(s, Reminder.class);
             }
+            //Catch JsonSyntaxException
             catch (JsonSyntaxException e) {
+                //Make toast saying Json string inserted is invalid
                 Toast.makeText(getApplicationContext(), getString(R.string.json_error), Toast.LENGTH_LONG).show();
+                //Log the exception
                 Log.e(TAG, e.getMessage());
+                //Return nothing
                 return;
             }
+            //Create new reminder object and copy saved reminder's name, description, radius, latitude and longitude over to new one
             Reminder newReminder = new Reminder();
             newReminder.setDescription(reminder.getDescription());
             newReminder.setLat(reminder.getLat());
             newReminder.setLng(reminder.getLng());
             newReminder.setName(reminder.getName());
             newReminder.setRadius(reminder.getRadius());
+            //Add new reminder to list
             reminderArrayList.add(newReminder);
         }
+        //Method call to hide edittext and make map reappear
         hideJsonEt();
+        //Create new AddRemindersAsyncTask to add new reminders to database
         AddRemindersAsyncTask task = new AddRemindersAsyncTask();
+        //Execute task with reminderlist as parameter
         task.execute(reminderArrayList);
     }
 
