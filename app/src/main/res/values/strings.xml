@@ -41,4 +41,13 @@
     <string name="json_error">Please enter some valid JSON text</string>
     <string name="geofence_remove_success">Reminder geofences removed successfully.</string>
     <string name="geofence_remove_fail">Failed to remove reminder geofences.</string>
+    <string name="geofence_delimiter">,</string>
+    <string name="geofence_entry">Geofence Entered</string>
+    <string name="geofence_notification">Notification Sent</string>
+    <string name="geofence_unavailable">Geofence not available</string>
+    <string name="geofence_exceeded">Too many geofences</string>
+    <string name="geofence_pendingintent">Too many pending intents</string>
+    <string name="geofence_error">Geofence Error</string>
+    <string name="geofence_createPending">Intent Called</string>
+    <string name="geofence_error_adding_removing">Error adding/removing geofence : %s</string>
 </resources>
