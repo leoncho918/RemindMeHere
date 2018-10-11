@@ -9,7 +9,7 @@ import android.support.annotation.NonNull;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
- * Class for a Reminders
+ * Class for Reminders
  */
 @Entity(tableName = "reminders")
 public class Reminder {
