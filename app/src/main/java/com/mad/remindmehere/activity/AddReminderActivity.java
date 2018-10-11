@@ -49,7 +49,9 @@ import com.mad.remindmehere.model.Reminder;
 import java.io.IOException;
 import java.util.List;
 
-//This activity handles all the functions and behaviour displayed in the activity to add reminders
+/**
+ * This activity handles all the functions and behaviour displayed in the activity to add reminders
+ */
 public class AddReminderActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     //Variables to store ui widgets
@@ -78,7 +80,10 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
     public static final int ADD_REMINDER_ZOOM = 18;
     public static final int SELECT_LOCATION_RESULT = 2;
 
-    //Called when the activity is created
+    /**
+     * Called when the activity is created
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -169,12 +174,16 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         initialiseDatabase();
     }
 
-    //Method to get an instance of room database
+    /**
+     * Method to get an instance of room database
+     */
     private void initialiseDatabase() {
         mReminderDatabase = ReminderDatabase.getReminderDatabase(getApplicationContext());
     }
 
-    //Method to update the size of the circle shown on map fragment based on seekbar progress
+    /**
+     * Method to update the size of the circle shown on map fragment based on seekbar progress
+     */
     private void updateCircle() {
         //If circle does exist remove it
         if (mCircle != null) {
@@ -185,7 +194,12 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         mCircle = mMap.addCircle(circleOptions);
     }
 
-    //Method converts latitude and longitude and returns an address in the form of a string
+    /**
+     * Method converts latitude and longitude and returns an address in the form of a string
+     * @param latLng
+     * @param context
+     * @return
+     */
     public static String getAddress(LatLng latLng, Context context) {
         //Get instance of geocoder
         Geocoder geocoder = new Geocoder(context);
@@ -211,7 +225,10 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         return lastAddress;
     }
 
-    //Method is called when the add reminder fab is pressed
+    /**
+     * Method is called when the add reminder fab is pressed, saves the new reminder into the database via asynctask and closes the activity if the reminder has been given a name
+     * @param view
+     */
     public void addReminder(View view) {
         //Run if the reminder name is set
         if (mNameSet) {
@@ -254,7 +271,14 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
-    //Called when the map fragment is ready
+    /**
+     * Manipulates the map once available.
+     * This callback is triggered when the map is ready to be used.
+     * If Google Play services is not installed on the device, the user will be prompted to install
+     * it inside the SupportMapFragment. This method will only be triggered once the user has
+     * installed Google Play services and returned to the app.
+     * @param googleMap
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         //Set mMap as googleMap
@@ -270,7 +294,12 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
-    //Called when user allows or denies a permission
+    /**
+     * Called when user allows or denies a permission
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -286,7 +315,9 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
-    //Method to configure how users interact with map fragment
+    /**
+     * Method to configure how users interact with map fragment if location permission is granted
+     */
     private void updateUi() {
         //Try
         try {
@@ -313,19 +344,28 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
-    //Method to add marker on map fragment
+    /**
+     * Method to add marker on map fragment
+     * @param latLng
+     */
     private void addMarker(LatLng latLng) {
         MarkerOptions markerOptions = new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_reminder_marker));
         mMap.addMarker(markerOptions);
     }
 
-    //Method to add circle on map fragment
+    /**
+     * Method to add circle on map fragment
+     * @param latLng
+     */
     private void addCircle(LatLng latLng) {
         CircleOptions circleOptions = new CircleOptions().center(latLng).radius(mRadius).strokeColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null)).fillColor(ResourcesCompat.getColor(getResources(), R.color.colorCircleFill, null));
         mCircle = mMap.addCircle(circleOptions);
     }
 
-    //Method to get device location
+    /**
+     * Method to get the devices location and move the map camera to the location
+     * @param isAnimated
+     */
     private void getDeviceLocation(final boolean isAnimated) {
         //Get instance of fusedlocationproviderclient
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -366,7 +406,12 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
-    //Method to handle camera movement on map fragment
+    /**
+     * Method to handle camera movement on map fragment
+     * @param latLng
+     * @param isAnimated
+     * @param moveCamera
+     */
     private void moveCamera(LatLng latLng, boolean isAnimated, boolean moveCamera) {
         //Create new cameraUpdate object with latlng parameters and constant zoom
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, ADD_REMINDER_ZOOM);
@@ -385,7 +430,10 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
-    //Method called when edit location button is pressed
+    /**
+     * Method called when edit location button is pressed and launches the SelectLocationMapsActivity
+     * @param view
+     */
     public void changeLocation(View view) {
         //Create new intent to start SelectLocationMapsActivity
         Intent intent = new Intent(AddReminderActivity.this, SelectLocationMapsActivity.class);
@@ -393,7 +441,12 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         startActivityForResult(intent, SELECT_LOCATION_RESULT);
     }
 
-    //Called when result is received
+    /**
+     * Called when result is received
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -418,7 +471,9 @@ public class AddReminderActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
-    //Class to add new reminder to room database
+    /**
+     * Class to add new reminder to room database
+     */
     private class AddRemindersAsyncTask extends AsyncTask<Reminder, Void, Void> {
         //Method called when task is executed
         @Override

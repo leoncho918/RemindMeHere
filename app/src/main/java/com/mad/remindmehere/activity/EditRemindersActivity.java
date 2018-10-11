@@ -41,6 +41,9 @@ import com.mad.remindmehere.R;
 import com.mad.remindmehere.database.ReminderDatabase;
 import com.mad.remindmehere.model.Reminder;
 
+/**
+ * This activity handles all the functions and behaviour displayed in the activity to edit reminders
+ */
 public class EditRemindersActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     //Variables to store ui widgets
@@ -70,7 +73,10 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
     public static final int DEFAULT_RADIUS = 10;
     public static final int DEFAULT_POSITION = 1;
 
-    //Called when the activity is created
+    /**
+     * Called when the activity is created
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,7 +123,9 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         mapFragment.getMapAsync(this);
     }
 
-    //Method to get reminder data from previous intent
+    /**
+     * Method to get reminder data from previous intent
+     */
     private void getData() {
         Intent intent = getIntent();
         mName = intent.getStringExtra(RemindersListActivity.NAME);
@@ -128,7 +136,9 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         mPosition = intent.getIntExtra(RemindersListActivity.POSITION, DEFAULT_POSITION);
     }
 
-    //Method to fill in reminder data into edittext boxes, seekbar and map
+    /**
+     * Method to fill in reminder data into edittext boxes, seekbar and map
+     */
     private void fillData() {
         mNameEt.setText(mName);
         mDescEt.setText(mDesc);
@@ -138,7 +148,9 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         AddReminderActivity.getAddress(mLatLng, getApplicationContext());
     }
 
-    //Method to create a seekbar listener
+    /**
+     * Method to create a seekbar listener
+     */
     private void startSeekBarListener() {
         //Creating OnSeekBarChangeListener
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -161,7 +173,9 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         });
     }
 
-    //Method to create text changed listener
+    /**
+     * Method to create text changed listener
+     */
     private void startTextChangedListener() {
         //Setting a textchanged listener
         mNameEt.addTextChangedListener(new TextWatcher() {
@@ -188,7 +202,9 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         });
     }
 
-    //Called when activity resumes
+    /**
+     * Called when activity resumes
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -196,12 +212,21 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         initialiseDatabase();
     }
 
-    //Method to get instance of reminder database
+    /**
+     * Method to get instance of reminder database
+     */
     private void initialiseDatabase() {
         mReminderDatabase = ReminderDatabase.getReminderDatabase(getApplicationContext());
     }
 
-    //Called when the map fragment is ready
+    /**
+     * Manipulates the map once available.
+     * This callback is triggered when the map is ready to be used.
+     * If Google Play services is not installed on the device, the user will be prompted to install
+     * it inside the SupportMapFragment. This method will only be triggered once the user has
+     * installed Google Play services and returned to the app.
+     * @param googleMap
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         //Set mMap as googleMap
@@ -218,7 +243,12 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    //Method to handle camera movement on map fragment
+    /**
+     * Method to handle camera movement on map fragment
+     * @param latLng
+     * @param isAnimated
+     * @param moveCamera
+     */
     private void moveCamera(LatLng latLng, boolean isAnimated, boolean moveCamera) {
         //Create new cameraUpdate object with latlng parameters and constant zoom from AddReminderActivity
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, AddReminderActivity.ADD_REMINDER_ZOOM);
@@ -237,7 +267,9 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    //Method to configure how users interact with map fragment
+    /**
+     * Method to configure how users interact with map fragment if location permission is granted
+     */
     private void updateUi() {
         //Try
         try {
@@ -264,19 +296,27 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    //Method to add marker on map fragment
+    /**
+     * Method to add marker on map fragment
+     * @param latLng
+     */
     private void addMarker(LatLng latLng) {
         MarkerOptions markerOptions = new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_reminder_marker));
         mMap.addMarker(markerOptions);
     }
 
-    //Method to add circle on map fragment
+    /**
+     * Method to add circle on map fragment
+     * @param latLng
+     */
     private void addCircle(LatLng latLng) {
         CircleOptions circleOptions = new CircleOptions().center(latLng).radius(mRadius).strokeColor(ResourcesCompat.getColor(getResources(), R.color.colorPrimaryDark, null)).fillColor(ResourcesCompat.getColor(getResources(), R.color.colorCircleFill, null));
         mCircle = mMap.addCircle(circleOptions);
     }
 
-    //Method to update the size of the circle shown on map fragment based on seekbar progress
+    /**
+     * Method to update the size of the circle shown on map fragment based on seekbar progress
+     */
     private void updateCircle() {
         //If circle does exist remove it
         if (mCircle != null) {
@@ -287,7 +327,10 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         mCircle = mMap.addCircle(circleOptions);
     }
 
-    //Method called when edit location button is pressed
+    /**
+     * Method called when edit location button is pressed
+     * @param view
+     */
     public void changeLocation(View view) {
         //Create new intent to pass reminder latitude and longitude coordinates to start SelectLocationMapsActivity
         Intent intent = new Intent(EditRemindersActivity.this, SelectLocationMapsActivity.class);
@@ -296,7 +339,12 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         startActivityForResult(intent, AddReminderActivity.SELECT_LOCATION_RESULT);
     }
 
-    //Method is called when the edit reminder fab is pressed
+    /**
+     * Method is called when the edit reminder fab is pressed, and checks if the reminder has been given a name before getting all data changed by the user and saving it into
+     * a new reminder which is then added into the database. An intent is then created to sent data confirming the reminder
+     * was edited and to delete the outdated reminder
+     * @param view
+     */
     public void editReminder(View view) {
         if (mNameSet) {
             //Get all text from edittext and seekbar
@@ -337,7 +385,12 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    //Called when result is received
+    /**
+     * Called when result is received
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -362,7 +415,9 @@ public class EditRemindersActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    //Class to add new reminder to room database
+    /**
+     * Class to add new reminder to room database
+     */
     private class AddRemindersAsyncTask extends AsyncTask<Reminder, Void, Void> {
         //Method called when task is executed
         @Override

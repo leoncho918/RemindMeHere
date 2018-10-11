@@ -40,6 +40,9 @@ import java.util.ArrayList;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
+/**
+ * This activity handles all the functions and behaviour displayed in the activity to display all reminders in a list
+ */
 public class RemindersListActivity extends AppCompatActivity {
 
     //Variables to store data
@@ -62,7 +65,10 @@ public class RemindersListActivity extends AppCompatActivity {
     public static final String POSITION = "com.mad.remindmehere.RemindersListActivity.POSITION";
     public static final int UPDATE_REMINDER = 5;
 
-    //Method called when activity is created
+    /**
+     * Method called when activity is created
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,7 +108,10 @@ public class RemindersListActivity extends AppCompatActivity {
         initaliseGeofencer();
     }
 
-    //Method to create a item touch helper and add colour and icons when a item  in recycler view is swiped
+    /**
+     * Method to create a item touch helper and add colour and icons when a item in recycler view is swiped.
+     * If item is swiped right reminder is deleted from database via async task, if swiped right EditReminderActivity is launched
+     */
     private void startItemTouchHelper() {
         //Create new callback
         ItemTouchHelper.SimpleCallback touchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -158,12 +167,16 @@ public class RemindersListActivity extends AppCompatActivity {
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
     }
 
-    //Method to create an instance of geofencer
+    /**
+     * Method to create an instance of geofencer class
+     */
     private void initaliseGeofencer() {
         mGeofencing = new Geofencing(getApplicationContext());
     }
 
-    //Method called when activity is resumed
+    /**
+     * Method called when activity is resumed
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -175,18 +188,25 @@ public class RemindersListActivity extends AppCompatActivity {
         getReminders();
     }
 
-    //Method to get instance of reminder database
+    /**
+     * Method to get instance of reminder database
+     */
     private void initialiseDatabase() {
         mReminderDatabase = ReminderDatabase.getReminderDatabase(getApplicationContext());
     }
 
-    //Method to start async task and get reminders from database
+    /**
+     * Method to start async task and get reminders from database via asynctask
+     */
     private void getReminders() {
         RefreshRemindersAsyncTask task = new RefreshRemindersAsyncTask();
         task.execute();
     }
 
-    //Method called when add reminder button is clicked
+    /**
+     * Method called when add reminder button is clicked and starts the AddReminderActivity
+     * @param view
+     */
     public void addReminder(View view) {
         //Create a new intent to start AddReminderActivity
         Intent intent = new Intent(RemindersListActivity.this, AddReminderActivity.class);
@@ -194,7 +214,12 @@ public class RemindersListActivity extends AppCompatActivity {
         startActivityForResult(intent, RemindersMapsActivity.ADD_REMINDER);
     }
 
-    //Method called menu items are created
+    /**
+     * Method called menu items are created and sets a searchicon which has a onclicklistener
+     * which opens a edittext for searching through the list of reminders
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //Inflating searchview layout
@@ -245,7 +270,9 @@ public class RemindersListActivity extends AppCompatActivity {
         return true;
     }
 
-    //Method to create listener for when text in edittext of searchview changes
+    /**
+     * Method to create listener for when text in edittext of searchview changes
+     */
     private void searchReminder() {
         //Adding textchangedlistner
         mSearchViewEt.addTextChangedListener(new TextWatcher() {
@@ -284,14 +311,21 @@ public class RemindersListActivity extends AppCompatActivity {
         });
     }
 
-    //Method to populate recyclerview with reminders
+    /**
+     * Method to populate recyclerview with reminders in list
+     */
     private void populateRecyclerView() {
         //Create new ReminderAdapter and set adapter to recyclerview
         mAdapter = new ReminderAdapter(getApplicationContext(), mRemindersList, this);
         mRecyclerView.setAdapter(mAdapter);
     }
 
-    //Method called when result is received
+    /**
+     * Method called when result is received
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -307,7 +341,9 @@ public class RemindersListActivity extends AppCompatActivity {
         }
     }
 
-    //Class to retrieve all reminders from room database
+    /**
+     * Class to retrieve all reminders from room database
+     */
     private class RefreshRemindersAsyncTask extends AsyncTask<Void, Void, ArrayList<Reminder>> {
         //Method called when asynctask starts
         @Override
@@ -334,7 +370,10 @@ public class RemindersListActivity extends AppCompatActivity {
             mGeofencing.registerGeofences();
         }
     }
-    //Method to delete reminder from room database
+
+    /**
+     * Class to delete reminder from room database
+     */
     private class DeleteRemindersAsyncTask extends AsyncTask<Integer, Void, Integer> {
         //Method called when asynctask starts
         @Override

@@ -61,7 +61,9 @@ import com.mad.remindmehere.geofence.GeofenceTransitionsJobIntentService;
 
 import java.util.ArrayList;
 
-//This activity handles all the functions and behaviour in the actitivy that shows all reminders on a map
+/**
+ * This activity handles all the functions and behaviour in the actitivy that shows all reminders on a map
+ */
 public class RemindersMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     //Variables to store ui widgets
@@ -93,7 +95,10 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     public static final int LIST_REMINDER = 3;
     public static final int TOAST_OFFSET = 0;
 
-    //Called when the activity is created
+    /**
+     * Called when the activity is created
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -200,11 +205,10 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
+     * @param googleMap
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -226,7 +230,9 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
 
     }
 
-    //Method called when activity starts/resumes
+    /**
+     * Method called when activity starts/resumes
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -243,12 +249,16 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         createNotificationChannel();
     }
 
-    //Method to get an instance of room database
+    /**
+     * Method to get an instance of room database
+     */
     private void initialiseDatabase() {
         mReminderDatabase = ReminderDatabase.getReminderDatabase(getApplicationContext());
     }
 
-    //Method to get reminders from database
+    /**
+     * Method to get reminders from database via asynctask
+     */
     private void getReminders() {
         //Create new RefreshRemindersAsyncTask
         RefreshRemindersAsyncTask task = new RefreshRemindersAsyncTask();
@@ -256,12 +266,16 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         task.execute();
     }
 
-    //Method to create object of geofencer
+    /**
+     * Method to create object of geofencer class
+     */
     private void initialiseGeofencer() {
         mGeofencing = new Geofencing(getApplicationContext());
     }
 
-    //Method to populate all reminders and their geofence radius onto the map
+    /**
+     * Method to populate all reminders and their geofence radius onto the map from reminders list
+     */
     private void populateRemindersOnMap() {
         mMap.clear();
         for (Reminder r : mReminders) {
@@ -272,7 +286,11 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    //Prompts the user for permission to use the device location.
+    /**
+     * Prompts the user for permission to use the device location if permission is not granted
+     * @param activity
+     * @param context
+     */
     public static void getLocationPermission(Activity activity, Context context) {
         //Request location permission, so that app has the location of the device. The result of the permission request is handled by onRequestPermissionsResult.
         //Check if app has location permission
@@ -290,7 +308,12 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    //Called when user allows or denies a permission
+    /**
+     * Called when user allows or denies a permission
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -306,7 +329,11 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    //Method to create dialog to notify user about location permission
+    /**
+     * Method to create dialog to notify user why location permission is needed
+     * @param activity
+     * @param context
+     */
     public static void createLocationDialog(final Activity activity, final Context context) {
         //Create alertdialog builder
         AlertDialog.Builder alertDlg = new AlertDialog.Builder(context);
@@ -335,7 +362,9 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         dialog.show();
     }
 
-    //Method to set the maps visibility to gone, set buttons, edittext to visible and change title of toolbar
+    /**
+     * Method to set the maps visibility to gone, set buttons, edittext to visible and change title of toolbar
+     */
     private void showJsonEt() {
         mMapFragment.getView().setVisibility(View.GONE);
         mJsonEditText.setVisibility(View.VISIBLE);
@@ -344,7 +373,9 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         mToolbar.setTitle(R.string.title_activity_reminders_maps_json);
     }
 
-    //Method to set the maps visibility to visible, set buttons and edittext to gone and change title of toolbar
+    /**
+     * Method to set the maps visibility to visible, set buttons and edittext to gone and change title of toolbar
+     */
     private void hideJsonEt() {
         mMapFragment.getView().setVisibility(View.VISIBLE);
         mJsonEditText.setVisibility(View.GONE);
@@ -354,7 +385,10 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         mToolbar.setTitle(R.string.title_activity_reminders_maps);
     }
 
-    //Method to handle the conversion of JSON string into reminder objects and add them to database
+    /**
+     * Method to set the maps visibility to visible, set buttons and edittext to gone, change title of toolbar
+     * and convert jsonstring into reminders which will be added into the database
+     */
     private void addJsonReminders() {
         //Create string variable and assign with string entered in edittext
         String jsonString = mJsonEditText.getText().toString();
@@ -400,7 +434,9 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         task.execute(reminderArrayList);
     }
 
-    //Method to configure how users interact with map fragment
+    /**
+     * Method to configure how users interact with map fragment if location permission is granted
+     */
     private void updateLocationUI() {
         //Check if mMap is null
         if (mMap == null) {
@@ -426,7 +462,11 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    //Method to get device location
+    /**
+     * Method to get device location and move the map camera to the location
+     * @param isAnimated
+     * @param moveCamera
+     */
     private void getDeviceLocation(final boolean isAnimated, final boolean moveCamera) {
         //Get instance of fusedlocationproviderclient
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -463,7 +503,12 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    //Method to handle camera movement on map fragment
+    /**
+     * Method to handle camera movement on map fragment
+     * @param latLng
+     * @param isAnimated
+     * @param moveCamera
+     */
     private void moveCamera(LatLng latLng, boolean isAnimated, boolean moveCamera) {
         //Create new cameraUpdate object with latlng parameters and constant zoom
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, MAP_ZOOM);
@@ -482,7 +527,10 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    //Method handles getting the device's location called when user clicks on mylocation fab
+    /**
+     * Method is called when user clicks on mylocation fab, gets the devices location, configures the map ui and moves the camera to the device location
+     * @param view
+     */
     public void myLocation(View view) {
         //Method call to make map fragment visible
         hideJsonEt();
@@ -497,7 +545,11 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    //Method called when user selects menu item in options
+    /**
+     * Method called when user selects menu item in options
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         //Open drawerlayout when home button is clicked
@@ -509,7 +561,10 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         return super.onOptionsItemSelected(item);
     }
 
-    //Method opens AddReminderActivity for users to add a new reminder and is called by addReminder fab
+    /**
+     * Method opens AddReminderActivity for users to add a new reminder and is called by addReminder fab
+     * @param view
+     */
     public void addReminder(View view) {
         //Method call to make map fragment visible
         hideJsonEt();
@@ -519,7 +574,12 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         startActivityForResult(intent, ADD_REMINDER);
     }
 
-    //Called when result is received
+    /**
+     * Called when result is received
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -545,7 +605,9 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    //Method to create notification channel
+    /**
+     * Method to create notification channel
+     */
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -565,27 +627,48 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
+    /**
+     * Method to convert all reminders in list to json string format
+     * @return
+     */
     private String reminderToJsonString() {
+        //Create new Gson Object
         Gson gson = new Gson();
+        //Create new string to store all reminders in json string format
         String stringJson = "";
+        //If statement to check if reminderslist has any remidners
         if (mReminders.size() > 0) {
+            //Convert first reminder to json string and add it to stringJson variable
             stringJson = gson.toJson(mReminders.get(0));
         }
+        //If statment to check if reminder list has more than one reminder
         if (mReminders.size() > 1) {
+            //For loop to go through all reminders in list
             for (int i = 1; i < mReminders.size(); i++) {
+                //Add reminders to stringJson variable with delimiter separating them
                 stringJson = stringJson + getString(R.string.delimiter) + gson.toJson(mReminders.get(i));
             }
         }
+        //Return stringJson variable
         return stringJson;
     }
 
+    /**
+     * Method takes string as a parameter and saves it onto clipboard
+     * @param jsonString
+     */
     private void saveRemindersToClipboard(String jsonString) {
+        //Create ne clipboardmanager object
         ClipboardManager manager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        //Create new clipdata object to save plain text with label and jsonString
         ClipData clip = ClipData.newPlainText(getString(R.string.clipboard_name), jsonString);
+        //Save clipdata to clipboard manager.
         manager.setPrimaryClip(clip);
     }
 
-    //Class to retrieve all reminders from room database
+    /**
+     * Class to retrieve all reminders from room database
+     */
     private class RefreshRemindersAsyncTask extends AsyncTask<Void, Void, ArrayList<Reminder>> {
         //Method called when asynctask starts
         @Override
@@ -612,21 +695,28 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         }
     }
 
-    //Class to add new reminder to room database
+    /**
+     * Class to add new reminder to room database
+     */
     private class AddRemindersAsyncTask extends AsyncTask<ArrayList<Reminder>, Void, Void> {
         //Method called when task is executed
         @Override
         protected Void doInBackground(ArrayList<Reminder>... arrayLists) {
+            //For each loop to go through each reminder in list
             for (Reminder r : arrayLists[0]) {
+                //Add each reminder to database
                 mReminderDatabase.reminderDao().addReminder(r);
             }
+            //Return null
             return null;
         }
-
+        //Method called when task finishes executing
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            //Create new RefreshRemindersAsyncTask to get all saved reminders from database
             RefreshRemindersAsyncTask task = new RefreshRemindersAsyncTask();
+            //Execute the task
             task.execute();
         }
     }
