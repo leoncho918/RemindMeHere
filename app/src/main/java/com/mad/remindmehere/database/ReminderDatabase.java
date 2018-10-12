@@ -13,7 +13,7 @@ import static com.mad.remindmehere.database.ReminderDatabase.DATABASE_VERSION;
 
 @Database(entities = Reminder.class, version = DATABASE_VERSION, exportSchema = false)
 /**
- * Class for reminder room database
+ * Abstract singleton class for reminder room database
  */
 public abstract class ReminderDatabase extends RoomDatabase {
     //Constants

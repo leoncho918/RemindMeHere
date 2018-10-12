@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ResultCallback class to simplify the registration, updating and unregistration of geofences
+ * ResultCallback singleton class to simplify the registration, updating and unregistration of geofences
  */
 public class Geofencing implements ResultCallback {
     //Variables to store data
@@ -30,15 +30,31 @@ public class Geofencing implements ResultCallback {
     private PendingIntent mGeofencePendingIntent;
     private Context mContext;
     private GeofencingClient mClient;
+
     //Constants
     public static final String TAG = "Geofence";
     public static final int DWELL_TIME = 15000;
+
+    //Static variable of type Geofencing
+    private static Geofencing mGeofencing = null;
+
+    /**
+     * Static method to create instance of Geofencing class
+     * @param context
+     * @return
+     */
+    public static Geofencing getInstance(Context context) {
+        if (mGeofencing == null) {
+            mGeofencing = new Geofencing(context);
+        }
+        return mGeofencing;
+    }
 
     /**
      * Constructor for this class, takes context as a argument
      * @param mContext
      */
-    public Geofencing(Context mContext) {
+    private Geofencing(Context mContext) {
         this.mGeofenceList = new ArrayList<>();
         this.mGeofencePendingIntent = null;
         this.mContext = mContext;

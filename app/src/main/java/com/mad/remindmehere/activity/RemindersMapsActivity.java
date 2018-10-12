@@ -270,7 +270,7 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
      * Method to create object of geofencer class
      */
     private void initialiseGeofencer() {
-        mGeofencing = new Geofencing(getApplicationContext());
+        mGeofencing = Geofencing.getInstance(getApplicationContext());
     }
 
     /**

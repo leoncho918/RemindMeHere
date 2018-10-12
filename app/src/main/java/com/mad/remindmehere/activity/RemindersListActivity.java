@@ -172,7 +172,7 @@ public class RemindersListActivity extends AppCompatActivity {
      * Method to create an instance of geofencer class
      */
     private void initaliseGeofencer() {
-        mGeofencing = new Geofencing(getApplicationContext());
+        mGeofencing = Geofencing.getInstance(getApplicationContext());
     }
 
     /**
