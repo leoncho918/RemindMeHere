@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An adapter that provides binding for Reminders and sets it to a custom view which are displayed in a recyclerview
+ * A singleton adapter that provides binding for Reminders and sets it to a custom view which are displayed in a recyclerview
  */
 public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHolder> {
 
@@ -37,9 +37,26 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHo
     Context mContext;
     Activity mActivity;
 
+    //Static variable of type ReminderAdapter
+    private static ReminderAdapter mAdapter = null;
+
     //Constants
     public static final String LAT = "com.mad.remindmehere.ReminderAdapter.LAT";
     public static final String LNG = "com.mad.remindmehere.ReminderAdapter.LNG";
+
+    /**
+     * Static method to create instance of ReminderAdapter
+     * @param context
+     * @param trains
+     * @param activity
+     * @return
+     */
+    public static ReminderAdapter getInstance(Context context, ArrayList<Reminder> trains, Activity activity) {
+        if (mAdapter == null) {
+            mAdapter = new ReminderAdapter(context, trains, activity);
+        }
+        return mAdapter;
+    }
 
     /**
      * Constructor that takes a arraylist of reminders, context and the activity that called it as parameters
@@ -47,7 +64,7 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHo
      * @param trains
      * @param activity
      */
-    public ReminderAdapter(Context context, ArrayList<Reminder> trains, Activity activity) {
+    private ReminderAdapter(Context context, ArrayList<Reminder> trains, Activity activity) {
         this.mReminders = trains;
         this.mContext = context;
         this.mActivity = activity;
@@ -121,6 +138,14 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHo
         mReminders.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, mReminders.size());
+    }
+
+    /**
+     * Updates adapters reminders with new reminder list
+     * @param reminders
+     */
+    public void updateReminders(ArrayList<Reminder> reminders) {
+        mReminders = reminders;
     }
 
     /**

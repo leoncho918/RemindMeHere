@@ -50,6 +50,7 @@ public class RemindersListActivity extends AppCompatActivity {
     private ArrayList<Reminder> mReminders = new ArrayList<Reminder>();
     private ArrayList<Reminder> mRemindersList;
     private EditText mSearchViewEt;
+    private Boolean firstRun = true;
 
     //Variables to store objects
     private ReminderDatabase mReminderDatabase;
@@ -315,9 +316,18 @@ public class RemindersListActivity extends AppCompatActivity {
      * Method to populate recyclerview with reminders in list
      */
     private void populateRecyclerView() {
-        //Create new ReminderAdapter and set adapter to recyclerview
-        mAdapter = new ReminderAdapter(getApplicationContext(), mRemindersList, this);
-        mRecyclerView.setAdapter(mAdapter);
+        //If this is the first time running this method
+        if (firstRun) {
+            //Get instance of ReminderAdapter and set adapter to recyclerview
+            mAdapter = ReminderAdapter.getInstance(getApplicationContext(), mRemindersList, this);
+            mRecyclerView.setAdapter(mAdapter);
+            firstRun = false;
+        }
+        //Else update dataset in adapter and notify that dataset as changed
+        else {
+            mAdapter.updateReminders(mRemindersList);
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     /**

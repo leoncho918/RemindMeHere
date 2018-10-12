@@ -215,8 +215,8 @@ public class RemindersMapsActivity extends AppCompatActivity implements OnMapRea
         //Set mMap as googleMap
         mMap = googleMap;
 
-        //Create an adapter for the info windows and set the adapter for the map
-        InfoWindowAdapter adapter = new InfoWindowAdapter(this);
+        //Get an adapter for the info windows and set the adapter for the map
+        InfoWindowAdapter adapter = InfoWindowAdapter.getInstance(this);
         mMap.setInfoWindowAdapter(adapter);
 
         //Method call to get location permission

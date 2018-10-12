@@ -9,17 +9,32 @@ import com.google.android.gms.maps.model.Marker;
 import com.mad.remindmehere.R;
 
 /**
- * An adapter that provides a view for customised rendering of info windows
+ * A singleton adapter that provides a view for customised rendering of info windows
  */
 public class InfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
     //Activity variable to store the activity that creates an adapter object
     private Activity context;
 
+    //Static variable of type InfoWindowAdapter
+    private static InfoWindowAdapter mAdapter = null;
+
+    /**
+     * Static method to create instance of InfoWindowAdapter class
+     * @param context
+     * @return
+     */
+    public static InfoWindowAdapter getInstance(Activity context) {
+        if (mAdapter == null) {
+            mAdapter = new InfoWindowAdapter(context);
+        }
+        return mAdapter;
+    }
+
     /**
      * Constructor that takes the calling activity's reference as a parameter
      */
-    public InfoWindowAdapter(Activity context) {
+    private InfoWindowAdapter(Activity context) {
         //Save activity
         this.context = context;
     }
