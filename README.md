@@ -1,6 +1,6 @@
 # RemindMeHere
 
-RemindMeHere is a location based reminder app for Android.
+RemindMeHere is a location based reminder app for Android made for the subject Mobile Applications Development at the University of Technology Sydney
 
 # Getting Started
 
